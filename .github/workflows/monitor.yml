@@ -1,0 +1,50 @@
+name: 招标关键词监控
+
+on:
+  schedule:
+    # 每小时的第 5 分钟触发一次(UTC)。GitHub 定时可能有几分钟延迟,属正常。
+    - cron: "5 * * * *"
+  workflow_dispatch: {}   # 允许在 Actions 页面手动点击运行
+
+# 允许工作流把 seen.json 提交回仓库(用于跨次运行去重)
+permissions:
+  contents: write
+
+# 同一时间只跑一个,避免并发写 seen.json 冲突
+concurrency:
+  group: bid-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 运行监控(单次)
+        env:
+          RUN_ONCE: "1"
+          BID_AUTHORIZATION: ${{ secrets.BID_AUTHORIZATION }}
+          BID_WEBHOOK: ${{ secrets.BID_WEBHOOK }}
+        run: python main.py
+
+      - name: 保存去重记录(seen.json)
+        run: |
+          if [ -n "$(git status --porcelain seen.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add seen.json
+            git commit -m "chore: update seen.json [skip ci]"
+            git push
+          else
+            echo "seen.json 无变化,跳过提交"
+          fi
