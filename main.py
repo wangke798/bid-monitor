@@ -1,6 +1,6 @@
 """
 关键词接口监控爬虫
-- 定时请求需登录的 JSON 接口(带 Cookie)
+- 定时请求免登录 JSON 接口
 - 遍历返回 list,命中自定义关键词的新记录推送到企业微信群机器人
 """
 import hashlib
@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -37,21 +37,15 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# 运行期告警状态(用于令牌过期只提醒一次,恢复后重置)
+# 运行期告警状态(保留兼容旧配置)
 _alert_state = {"token_alerted": False}
-
 
 
 def load_config() -> dict:
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    # 环境变量覆盖敏感信息(用于 GitHub Actions / 服务器部署,避免明文入库)
-    token = os.environ.get("BID_AUTHORIZATION")
-    if token:
-        cfg.setdefault("headers", {})
-        # 允许只填令牌本体,自动补 Bearer 前缀
-        cfg["headers"]["Authorization"] = token if token.lower().startswith("bearer ") else f"Bearer {token}"
+    # 环境变量覆盖企业微信 Webhook(用于 GitHub Actions / 服务器部署,避免明文入库)
     webhook = os.environ.get("BID_WEBHOOK")
     if webhook:
         cfg["wechat_webhook"] = webhook
@@ -80,11 +74,11 @@ def build_headers(cfg: dict) -> dict:
 
 
 class TokenExpired(Exception):
-    """登录凭证(Token/Cookie)失效。"""
+    """兼容旧版本配置的异常类型。"""
 
 
 def fetch(cfg: dict) -> dict:
-    """请求接口,返回解析后的 JSON 字典。凭证失效时抛出 TokenExpired。"""
+    """请求接口,返回解析后的 JSON 字典。"""
     method = cfg.get("method", "GET").upper()
     headers = build_headers(cfg)
     kwargs = {
@@ -93,19 +87,30 @@ def fetch(cfg: dict) -> dict:
         "timeout": cfg.get("timeout", 15),
     }
     if method == "POST":
-        kwargs["json"] = cfg.get("body") or {}
+        kwargs["json"] = build_body(cfg)
+        log.info("发布时间范围: %s - %s", kwargs["json"].get("releaseStartTime"), kwargs["json"].get("releaseEndTime"))
         resp = requests.post(cfg["api_url"], **kwargs)
     else:
         resp = requests.get(cfg["api_url"], **kwargs)
-    # 鉴权失败: 401/403 直接判定为凭证过期
-    if resp.status_code in (401, 403):
-        raise TokenExpired(f"HTTP {resp.status_code}")
     resp.raise_for_status()
-    try:
-        return resp.json()
-    except ValueError:
-        # 返回的不是 JSON(常见于被重定向到登录页),也视为凭证失效
-        raise TokenExpired("返回内容不是合法 JSON")
+    return resp.json()
+
+
+def build_body(cfg: dict) -> dict:
+    """构造请求体,每次运行动态写入当天发布时间范围。"""
+    body = dict(cfg.get("body") or {})
+    if cfg.get("use_today_release_range", True):
+        start_ms, end_ms = today_range_ms()
+        body["releaseStartTime"] = start_ms
+        body["releaseEndTime"] = end_ms
+    return body
+
+
+def today_range_ms() -> tuple[int, int]:
+    """返回本地当天 00:00:00.000 到 23:59:59.999 的毫秒时间戳。"""
+    start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    end = start.replace(hour=23, minute=59, second=59, microsecond=999000)
+    return int(start.timestamp() * 1000), int(end.timestamp() * 1000)
 
 
 def dig(data, path: str):
@@ -191,38 +196,24 @@ def push_wechat(webhook: str, content: str) -> bool:
         return False
 
 
-def notify_token_expired(cfg: dict) -> None:
-    """令牌失效时推送企业微信提醒(失效期间只提醒一次)。"""
-    if _alert_state.get("token_alerted"):
-        return
-    content = "\n".join([
-        "**⚠️ 招标监控: 登录令牌已失效**",
-        "> 程序暂时无法获取数据,请尽快更新令牌:",
-        "> 1. 浏览器登录招标网站",
-        "> 2. F12 → 网络 → 刷新 → 找到 page 请求",
-        "> 3. 复制 Authorization 的 Bearer 令牌",
-        "> 4. 替换 config.yaml 里的 Authorization 后重启程序",
-        f"> 时间: {datetime.now():%Y-%m-%d %H:%M:%S}",
-    ])
-    if push_wechat(cfg["wechat_webhook"], content):
-        _alert_state["token_alerted"] = True
-
-
 def build_message(item: dict, hits: list[str], cfg: dict) -> str:
-    title = get_title(item, cfg)
+    business_name = str(item.get("businessName") or get_title(item, cfg))
+    release_time = parse_ts(item, "releaseTime")
+    bid_end_time = parse_ts(item, "bidEndTime")
+    tenderer_name = str(item.get("tendererName") or "")
     link = build_link(item, cfg)
     kw_str = "、".join(hits)
     lines = [
         "**🔔 命中关键词监控**",
         f"> 关键词: `{kw_str}`",
-        f"> 标题: {title}",
+        f"> 项目名称: {business_name}",
     ]
-    deadline = get_deadline(item, cfg)
-    if deadline:
-        lines.append(f"> 开标时间: {deadline:%Y-%m-%d %H:%M}")
-    start_time = parse_ts(item, cfg.get("start_time_field") or "")
-    if start_time:
-        lines.append(f"> 公告开始时间: {start_time:%Y-%m-%d %H:%M}")
+    if release_time:
+        lines.append(f"> 发布时间: {release_time:%Y-%m-%d %H:%M}")
+    if bid_end_time:
+        lines.append(f"> 开标时间: {bid_end_time:%Y-%m-%d %H:%M}")
+    if tenderer_name:
+        lines.append(f"> 招标人: {tenderer_name}")
     if link:
         lines.append(f"> 链接: [点击查看]({link})")
     lines.append(f"> 推送时间: {datetime.now():%Y-%m-%d %H:%M:%S}")
@@ -233,12 +224,11 @@ def run_once(cfg: dict, seen: set, seen_path: Path) -> None:
     log.info("开始检查接口: %s", cfg["api_url"])
     try:
         data = fetch(cfg)
-    except TokenExpired as e:
-        log.error("登录凭证已失效(%s),请更新配置中的 Authorization 令牌", e)
-        notify_token_expired(cfg)
-        return
     except requests.RequestException as e:
         log.error("请求失败: %s", e)
+        return
+    except ValueError as e:
+        log.error("返回内容不是合法 JSON: %s", e)
         return
 
     # 请求成功,重置过期告警状态
@@ -257,22 +247,11 @@ def run_once(cfg: dict, seen: set, seen_path: Path) -> None:
     webhook = cfg["wechat_webhook"]
     now = datetime.now()
 
-    # 早停阈值: 公告开始时间早于此时间则停止遍历(列表按最新倒序)
-    max_age_hours = cfg.get("max_age_hours") or 0
-    start_field = cfg.get("start_time_field") or ""
-    age_cutoff = now - timedelta(hours=max_age_hours) if max_age_hours and start_field else None
-
     new_hits = 0
     expired = 0
     for item in items:
         if not isinstance(item, dict):
             continue
-        # 早停: 遇到发布时间超过阈值的公告,后面都更旧,直接停止
-        if age_cutoff is not None:
-            st = parse_ts(item, start_field)
-            if st is not None and st < age_cutoff:
-                log.info("遇到超过 %s 小时的公告,停止遍历", max_age_hours)
-                break
         # 把所有要检查的字段拼成一段文本统一匹配
         text = " ".join(str(item.get(f, "")) for f in match_fields)
         hits = match_keywords(text, keywords, case_sensitive)

@@ -1,7 +1,7 @@
 # ============ 接口配置 ============
 
-# 接口地址(F12 → Network → 找到返回 list 的那个请求 → 复制 Request URL)
-api_url: "https://iscmdzzb.pipechina.com.cn:8081/api/purchase-execute/tb/tendernotice/page"
+# 接口地址: 国家管网集团电子招标平台免登录公告列表接口
+api_url: "https://iscmdzzb.pipechina.com.cn:8081/api/saas-portal/noauth/trans/trade/pageEs"
 
 # 请求方式: GET 或 POST
 method: "POST"
@@ -9,35 +9,37 @@ method: "POST"
 # 请求超时(秒)
 timeout: 15
 
-# 请求体(POST 时使用)。把 F12 里看到的请求参数填进来,比如分页、查询条件
-# 注意: 这里以 JSON 形式发送(配合下面 Content-Type: application/json)
+# 请求体(POST 时使用)。releaseStartTime/releaseEndTime 会由程序自动改为当天 00:00:00-23:59:59
 body:
-  bidSectionCode: ""
-  bidSectionName: ""
-  noticeName: ""
-  purchaseProjectCode: ""
-  purchaseProjectName: ""
   pageNum: 1
-  pageSize: 100
+  pageSize: 50
+  tradePattern: "981931056975052801"
+  noticeType: 1
+  businessName: ""
+  releaseStartTime: 0
+  releaseEndTime: 0
+  purchaseProjectType: ""
+  purchaseMode:
+  purchasePatternId: ""
+  tendererId: ""
+
+# 是否自动把 releaseStartTime/releaseEndTime 设置为当天时间范围
+use_today_release_range: true
 
 # URL 查询参数(GET 时使用,POST 也可叠加)
 params: {}
 
-# ============ 登录凭证 ============
-# 本站使用 Bearer Token 鉴权(不是 Cookie),token 写在下面 headers 的 Authorization 里。
-# Token 会过期,失效后到浏览器 F12 → Network → 该接口 Request Headers → 复制新的 Authorization 值替换。
+# ============ 请求头 ============
+# 当前接口为 noauth 免登录接口,不需要 Cookie/Authorization。
 cookie: ""
 
-# 其它请求头(本站鉴权靠 Authorization)
-# 注: 部署到 GitHub Actions/服务器时,令牌请放到环境变量 BID_AUTHORIZATION(或 Secrets),
-#     程序会自动覆盖下面这一行,无需把真实令牌写进本文件。本地直接运行才需在此填写。
 headers:
-  Authorization: ""
   Content-Type: "application/json;charset=UTF-8"
   Accept: "application/json, text/plain, */*"
+  Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
   Origin: "https://iscmdzzb.pipechina.com.cn:8081"
-  Referer: "https://iscmdzzb.pipechina.com.cn:8081/web-transaction/index.html"
-  User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+  Referer: "https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?"
+  User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
 
 # ============ JSON 解析 ============
 # list 在 JSON 中的路径,用点号分隔。例如返回 {"data": {"list": [...]}} 就写 "data.list"
@@ -45,37 +47,31 @@ list_path: "data.list"
 
 # 每条记录中,需要检查关键词的字段(命中任意字段即算命中)
 match_fields:
-  - "bidSectionName"
-  - "noticeName"
-  - "tendererName"
+  - "businessName"
 
 # 用于去重的唯一字段
 id_field: "id"
 
-# 推送时展示的标题字段(留空则用第一个 match_fields)
-title_field: "noticeName"
+# 推送时展示的标题字段
+title_field: "businessName"
 
-# ============ 开标时间过滤 ============
-# 开标(截止)时间字段,值为毫秒级时间戳。只推送还没到开标时间的(未过期)记录。
-# 留空则不做时间过滤。
-# 注: 本接口无开标时间字段(只有公告开始时间 noticeStartTime),故关闭时间过滤。
+# ============ 时间字段 ============
+# 仅展示开标时间,不做过期过滤请留空。当天范围由请求体 releaseStartTime/releaseEndTime 控制。
 deadline_field: ""
 
-# 推送消息中展示的"公告开始时间"字段(毫秒级时间戳)。留空则不展示。
-start_time_field: "noticeStartTime"
+# 推送消息中展示的发布时间字段(毫秒级时间戳)。
+start_time_field: "releaseTime"
 
-# 只处理最近 N 小时内发布的公告。列表按公告开始时间倒序(最新在前),
-# 一旦遇到比"当前时间 - N 小时"更早的公告,就停止往下遍历(早停)。
-# 留空或设为 0 则不限制,遍历全部。建议略大于轮询间隔(每小时一次可设 1.5)。
-max_age_hours: 1.5
+# 新接口已按当天发布时间过滤,这里不再用最近 N 小时早停。
+max_age_hours: 0
 
 # 详情页链接模板(可选)。用 {字段名} 占位,程序会用记录里的值替换
-# 例如: "https://example.com/detail?id={bidSectionId}"
+# 例如: "https://example.com/detail?id={businessId}"
 # 留空则不带链接
 detail_url_template: ""
 
 # ============ 关键词 ============
-# 命中其中任意一个关键词即视为相关内容(在 match_fields 指定的字段里搜索)
+# 命中其中任意一个关键词即视为相关内容(仅搜索 businessName)
 keywords:
   - "信息安全"
   - "网络安全"
@@ -83,6 +79,8 @@ keywords:
   - "加密"
   - "防火墙"
   - "流量计"
+  - "数据集"
+  - "数据标注"
 
 # 是否区分大小写
 case_sensitive: false

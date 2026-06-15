@@ -33,7 +33,6 @@ jobs:
       - name: 运行监控(单次)
         env:
           RUN_ONCE: "1"
-          BID_AUTHORIZATION: ${{ secrets.BID_AUTHORIZATION }}
           BID_WEBHOOK: ${{ secrets.BID_WEBHOOK }}
         run: python main.py
 

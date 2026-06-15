@@ -1,0 +1,199 @@
+请求头curl ^"https://iscmdzzb.pipechina.com.cn:8081/api/saas-portal/noauth/trans/trade/pageEs^" ^
+  -H ^"Accept: application/json, text/plain, */*^" ^
+  -H ^"Accept-Language: en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7^" ^
+  -H ^"Connection: keep-alive^" ^
+  -H ^"Content-Type: application/json;charset=UTF-8^" ^
+  -H ^"Origin: https://iscmdzzb.pipechina.com.cn:8081^" ^
+  -H ^"Referer: https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?^" ^
+  -H ^"Sec-Fetch-Dest: empty^" ^
+  -H ^"Sec-Fetch-Mode: cors^" ^
+  -H ^"Sec-Fetch-Site: same-origin^" ^
+  -H ^"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36^" ^
+  -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"149^\^", ^\^"Chromium^\^";v=^\^"149^\^", ^\^"Not)A;Brand^\^";v=^\^"24^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  --data-raw ^"^{^\^"pageNum^\^":1,^\^"pageSize^\^":50,^\^"tradePattern^\^":^\^"981931056975052801^\^",^\^"noticeType^\^":1,^\^"businessName^\^":^\^"^\^",^\^"releaseEndTime^\^":1781500780106,^\^"releaseStartTime^\^":1781452800000,^\^"purchaseProjectType^\^":^\^"^\^",^\^"purchaseMode^\^":null,^\^"purchasePatternId^\^":^\^"^\^",^\^"tendererId^\^":^\^"^\^"^}^"
+
+
+  返回数据结构
+  {
+    "errCode": null,
+    "errMessage": null,
+    "data": {
+        "totalCount": 6,
+        "pageSize": 10,
+        "pageNum": 1,
+        "list": [
+            {
+                "id": "1516035503894822912",
+                "businessId": "1516019669552689152",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "储运技术公司工业控制系统网络安全产品能力验证与行业适配服务项目询比采购公告",   // 招标公告
+                "releaseTime": 1781496000000,   // 发布时间
+                "bidEndTime": 1782108000000,    // 开标时间
+                "purchaseProjectCode": "CEITCL-BJ04-2606007-01",
+                "purchaseMode": "981932336862724096",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家管网集团储运技术发展有限公司",   // 招标人
+                "purchaseProjectType": "981929460117635079",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1781798340000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "储运技术公司工业控制系统网络安全产品能力验证与行业适配服务项目",
+                "bidSectionCode": "1"
+            },
+            {
+                "id": "1516038529061154816",
+                "businessId": "1516025187827687425",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "湖南公司报废资产处置评估服务项目采购公告",
+                "releaseTime": 1781496000000,
+                "bidEndTime": 1782091800000,
+                "purchaseProjectCode": "GXCZ-C-26740111",
+                "purchaseMode": "981932336862724096",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家石油天然气管网集团有限公司湖南分公司",
+                "purchaseProjectType": "981929460117635079",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1782032400000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "湖南公司报废资产处置评估服务项目",
+                "bidSectionCode": "1"
+            },
+            {
+                "id": "1516046983981694976",
+                "businessId": "1516036342503010305",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "西北公司站场人员定位系统物资采购框架项目招标公告",
+                "releaseTime": 1781496000000,
+                "bidEndTime": 1783386000000,
+                "purchaseProjectCode": "CEITCL-SX01-2606007",
+                "purchaseMode": "981931858150031361",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家石油天然气管网集团有限公司西北分公司",
+                "purchaseProjectType": "981929460113440777",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1782207000000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "西北公司站场人员定位系统物资采购框架项目",
+                "bidSectionCode": "PAC-XBGS-26060024"
+            },
+            {
+                "id": "1516013669974994944",
+                "businessId": "1516013542392963073",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "国家管网湖北公司2026年原油管道阀门总线控制器升级项目公开询比采购采购公告",
+                "releaseTime": 1781488800000,
+                "bidEndTime": 1782435600000,
+                "purchaseProjectCode": "TGWHBX20260611-04",
+                "purchaseMode": "981932336862724096",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家石油天然气管网集团有限公司湖北分公司",
+                "purchaseProjectType": "981929460113440777",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1782014400000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "国家管网湖北公司2026年原油管道阀门总线控制器升级项目公开询比采购",
+                "bidSectionCode": "PAC-HZGS-26050120"
+            },
+            {
+                "id": "1516015364814143489",
+                "businessId": "1516013191873568769",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "压缩机组维检修分公司2026年某型燃机热端涡轮叶片和罩环维修项目招标公告",
+                "releaseTime": 1781488800000,
+                "bidEndTime": 1782696600000,
+                "purchaseProjectCode": "CEITCL-BJ04-2605023-01",
+                "purchaseMode": "981931858150031361",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家管网集团储运技术发展有限公司压缩机组维检修分公司",
+                "purchaseProjectType": "981929460117635079",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1782118800000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "压缩机组维检修分公司2026年某型燃机热端涡轮叶片和罩环维修项目",
+                "bidSectionCode": "1"
+            },
+            {
+                "id": "1516010426402865152",
+                "businessId": "1516009113870639105",
+                "tradePattern": 981931056975052800,
+                "noticeType": 1,
+                "platformId": "981643990666682369",
+                "platformName": null,
+                "businessName": "福建公司2026-2027年环保咨询服务项目招标公告",
+                "releaseTime": 1781487000000,
+                "bidEndTime": 1783301400000,
+                "purchaseProjectCode": "GXTC-C-26010083",
+                "purchaseMode": "981931858150031361",
+                "purchaseName": null,
+                "industrySort": null,
+                "tendererName": "国家石油天然气管网集团有限公司福建分公司",
+                "purchaseProjectType": "981929460117635079",
+                "publishStatus": 1,
+                "tenderDocGetEndTime": 1782118800000,
+                "tenderAgencyName": null,
+                "purchaseProjectName": null,
+                "sasacPurchaseDirectory": null,
+                "registrationEndTime": null,
+                "systemStatus": null,
+                "purchasePatternId": "981931622870548481",
+                "bidSectionName": "福建公司2026-2027年环保咨询服务项目一标段",
+                "bidSectionCode": "1"
+            }
+        ],
+        "firstResult": 0,
+        "prePage": 1,
+        "pageNo": 1,
+        "totalPage": 1,
+        "nextPage": 1,
+        "firstPage": true,
+        "lastPage": true
+    },
+    "success": true
+}
