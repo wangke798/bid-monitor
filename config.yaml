@@ -1,77 +1,6 @@
-# ============ 接口配置 ============
+# ============ 全局配置(所有数据源共享,可被单个数据源覆盖) ============
 
-# 接口地址: 国家管网集团电子招标平台免登录公告列表接口
-api_url: "https://iscmdzzb.pipechina.com.cn:8081/api/saas-portal/noauth/trans/trade/pageEs"
-
-# 请求方式: GET 或 POST
-method: "POST"
-
-# 请求超时(秒)
-timeout: 15
-
-# 请求体(POST 时使用)。releaseStartTime/releaseEndTime 会由程序自动改为当天 00:00:00-23:59:59
-body:
-  pageNum: 1
-  pageSize: 50
-  tradePattern: "981931056975052801"
-  noticeType: 1
-  businessName: ""
-  releaseStartTime: 0
-  releaseEndTime: 0
-  purchaseProjectType: ""
-  purchaseMode:
-  purchasePatternId: ""
-  tendererId: ""
-
-# 是否自动把 releaseStartTime/releaseEndTime 设置为当天时间范围
-use_today_release_range: true
-
-# URL 查询参数(GET 时使用,POST 也可叠加)
-params: {}
-
-# ============ 请求头 ============
-# 当前接口为 noauth 免登录接口,不需要 Cookie/Authorization。
-cookie: ""
-
-headers:
-  Content-Type: "application/json;charset=UTF-8"
-  Accept: "application/json, text/plain, */*"
-  Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
-  Origin: "https://iscmdzzb.pipechina.com.cn:8081"
-  Referer: "https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?"
-  User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
-
-# ============ JSON 解析 ============
-# list 在 JSON 中的路径,用点号分隔。例如返回 {"data": {"list": [...]}} 就写 "data.list"
-list_path: "data.list"
-
-# 每条记录中,需要检查关键词的字段(命中任意字段即算命中)
-match_fields:
-  - "businessName"
-
-# 用于去重的唯一字段
-id_field: "id"
-
-# 推送时展示的标题字段
-title_field: "businessName"
-
-# ============ 时间字段 ============
-# 仅展示开标时间,不做过期过滤请留空。当天范围由请求体 releaseStartTime/releaseEndTime 控制。
-deadline_field: ""
-
-# 推送消息中展示的发布时间字段(毫秒级时间戳)。
-start_time_field: "releaseTime"
-
-# 新接口已按当天发布时间过滤,这里不再用最近 N 小时早停。
-max_age_hours: 0
-
-# 详情页链接模板(可选)。用 {字段名} 占位,程序会用记录里的值替换
-# 例如: "https://example.com/detail?id={businessId}"
-# 留空则不带链接
-detail_url_template: ""
-
-# ============ 关键词 ============
-# 命中其中任意一个关键词即视为相关内容(仅搜索 businessName)
+# 关键词: 命中其中任意一个即视为相关内容
 keywords:
   - "信息安全"
   - "网络安全"
@@ -85,15 +14,124 @@ keywords:
 # 是否区分大小写
 case_sensitive: false
 
-# ============ 轮询 ============
-# 每隔多少分钟检查一次
-interval_minutes: 60
+# 请求超时(秒)
+timeout: 15
 
-# ============ 企业微信群机器人 ============
-# 在企业微信群 -> 添加群机器人 -> 复制 Webhook 地址
-# 注: 部署到 GitHub Actions/服务器时,请放到环境变量 BID_WEBHOOK(或 Secrets),
-#     程序会自动覆盖下面这一行。本地直接运行才需在此填写。
-wechat_webhook: ""
+# 每隔多少分钟检查一次(本地运行)
+interval_minutes: 60
 
 # 去重记录文件(已推送过的内容不再重复推送)
 seen_file: "seen.json"
+
+# 企业微信群机器人 Webhook
+# 部署到 GitHub Actions/服务器时,请放到环境变量 BID_WEBHOOK,程序会自动覆盖此行。
+wechat_webhook: ""
+
+# ============ 数据源列表 ============
+sources:
+  # ---------- 数据源 1: 国家管网集团电子招标平台 ----------
+  - name: "国家管网"
+    site: "国家管网招标"
+    api_url: "https://iscmdzzb.pipechina.com.cn:8081/api/saas-portal/noauth/trans/trade/pageEs"
+    method: "POST"
+    # 请求体。releaseStartTime/releaseEndTime 会由程序自动改为当天 00:00:00-23:59:59
+    body:
+      pageNum: 1
+      pageSize: 50
+      tradePattern: "981931056975052801"
+      noticeType: 1
+      businessName: ""
+      releaseStartTime: 0
+      releaseEndTime: 0
+      purchaseProjectType: ""
+      purchaseMode:
+      purchasePatternId: ""
+      tendererId: ""
+    use_today_release_range: true
+    headers:
+      Content-Type: "application/json;charset=UTF-8"
+      Accept: "application/json, text/plain, */*"
+      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
+      Origin: "https://iscmdzzb.pipechina.com.cn:8081"
+      Referer: "https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?"
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    list_path: "data.list"
+    match_fields:
+      - "businessName"
+    id_field: "id"
+    title_field: "businessName"
+    # 发布时间字段为毫秒级时间戳
+    start_time_field: "releaseTime"
+    time_format: "ms"
+    deadline_field: ""
+    detail_url_template: ""
+
+  # ---------- 数据源 2: 万项网-推荐招标(tid=23) ----------
+  - name: "万项网-推荐招标"
+    site: "万项网招标"
+    api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
+    method: "GET"
+    params:
+      tid: 23
+      pageSize: 50
+      pageNo: 1
+    headers:
+      Accept: "application/json, text/plain, */*"
+      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
+      Referer: "https://www.chinazbcg.com/listpage/23"
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    list_path: "result.list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "推荐招标"
+    # 发布时间字段为日期字符串,如 "2026-06-22"
+    start_time_field: "updateTime"
+    time_format: "date"
+
+  # ---------- 数据源 3: 万项网-招标公告(tid=2) ----------
+  - name: "万项网-招标公告"
+    site: "万项网招标"
+    api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
+    method: "GET"
+    params:
+      tid: 2
+      pageSize: 50
+      pageNo: 1
+    headers:
+      Accept: "application/json, text/plain, */*"
+      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
+      Referer: "https://www.chinazbcg.com/listpage/2"
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    list_path: "result.list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "招标公告"
+    start_time_field: "updateTime"
+    time_format: "date"
+
+  # ---------- 数据源 4: 万项网-国际招标(tid=12) ----------
+  - name: "万项网-国际招标"
+    site: "万项网招标"
+    api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
+    method: "GET"
+    params:
+      tid: 12
+      pageSize: 50
+      pageNo: 1
+    headers:
+      Accept: "application/json, text/plain, */*"
+      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
+      Referer: "https://www.chinazbcg.com/listpage/12"
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    list_path: "result.list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "国际招标"
+    start_time_field: "updateTime"
+    time_format: "date"

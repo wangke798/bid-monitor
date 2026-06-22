@@ -1,0 +1,186 @@
+1. 这个项目是爬取招标公告接口的信息，根据关键字匹配是否招标公告中是否有关键字，如果有关键字，就将该公告推送到企业微信中
+    目前这个接口是爬取的国家管网的招标公告，现在需要新增爬取万项网的公告。
+2. 万项网需要爬取三个接口的信息，分别是推荐招标、招标公告、国际招标
+    （1）推荐招标接口
+        curl ^"https://www.chinazbcg.com/zbcg/web/infosListMore?tid=23^&pageSize=40^&pageNo=1^" ^
+        -H ^"accept: application/json, text/plain, */*^" ^
+        -H ^"accept-language: en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7^" ^
+        -H ^"priority: u=1, i^" ^
+        -H ^"referer: https://www.chinazbcg.com/listpage/23^" ^
+        -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"149^\^", ^\^"Chromium^\^";v=^\^"149^\^", ^\^"Not)A;Brand^\^";v=^\^"24^\^"^" ^
+        -H ^"sec-ch-ua-mobile: ?0^" ^
+        -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+        -H ^"sec-fetch-dest: empty^" ^
+        -H ^"sec-fetch-mode: cors^" ^
+        -H ^"sec-fetch-site: same-origin^" ^
+        -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36^"
+
+        返回值格式
+        {
+            "success": true,
+            "message": "",
+            "code": 200,
+            "result": {
+                "total": 730018,
+                "list": [
+                    {
+                        "id": 55252608,
+                        "tid": 23,
+                        "se": "1",
+                        "title": "中国电子科技集团公司第十三研究所芯片外观自动检测机采购招标公告",
+                        "hits": null,
+                        "reguser": "杨月华",
+                        "regdate": "2026-06-22",
+                        "img": null,
+                        "tname": "推荐招标",
+                        "checkcode": null,
+                        "province": "1",
+                        "pname": "北京",
+                        "dj": 1,
+                        "tb": null,
+                        "zhongbiao": null,
+                        "leve": null,
+                        "file": null,
+                        "state": "1",
+                        "delFlag": 0,
+                        "updateTime": "2026-06-22",
+                        "keywordIds": null,
+                        "content": "",
+                        "stage": null,
+                        "stageName": null,
+                        "investmentAmount": null,
+                        "linkContent": null
+                    }
+                ],
+                "pageNum": 1,
+                "pageSize": 1,
+                "size": 1,
+                "startRow": 0,
+                "endRow": 0,
+                "pages": 730018,
+                "prePage": 0,
+                "nextPage": 2,
+                "hasPreviousPage": false,
+                "hasNextPage": true,
+                "navigatePages": 8,
+                "navigatePageNums": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8
+                ],
+                "navigateFirstPage": 1,
+                "navigateLastPage": 8,
+                "firstPage": true,
+                "lastPage": false
+            },
+            "timestamp": 1782091145434
+        }
+
+        我们需要对res.result.list里面的数据进行爬取，主要爬取title字段， updateTime是发布时间，主要拿这两个字段就行，给企业微信推送格式就填
+        关键词:   网络安全  
+        项目名称: xxx
+        类型：推荐招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+    （2）招标公告接口
+        请求接口
+        curl ^"https://www.chinazbcg.com/zbcg/web/infosListMore?tid=2^&pageSize=20^&pageNo=1^" ^
+        -H ^"accept: application/json, text/plain, */*^" ^
+        -H ^"accept-language: en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7^" ^
+        -H ^"priority: u=1, i^" ^
+        -H ^"referer: https://www.chinazbcg.com/listpage/2^" ^
+        -H ^"sec-ch-ua: ^\^"Google Chrome^\^";v=^\^"149^\^", ^\^"Chromium^\^";v=^\^"149^\^", ^\^"Not)A;Brand^\^";v=^\^"24^\^"^" ^
+        -H ^"sec-ch-ua-mobile: ?0^" ^
+        -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+        -H ^"sec-fetch-dest: empty^" ^
+        -H ^"sec-fetch-mode: cors^" ^
+        -H ^"sec-fetch-site: same-origin^" ^
+        -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36^"
+
+        返回数据结构
+        {
+            "success": true,
+            "message": "",
+            "code": 200,
+            "result": {
+                "total": 40000,
+                "list": [
+                    {
+                        "id": 55252420,
+                        "tid": 2,
+                        "se": "1",
+                        "title": "关于洛阳轴承集团股份有限公司精密轴承事业部KBK单梁悬挂起重机的二次招标公告",
+                        "hits": null,
+                        "reguser": "陈曦",
+                        "regdate": "2026-06-22",
+                        "img": null,
+                        "tname": "招标公告",
+                        "checkcode": null,
+                        "province": "8",
+                        "pname": "河南",
+                        "dj": 1,
+                        "tb": null,
+                        "zhongbiao": null,
+                        "leve": null,
+                        "file": null,
+                        "state": "1",
+                        "delFlag": 0,
+                        "updateTime": "2026-06-22",
+                        "keywordIds": null,
+                        "content": "",
+                        "stage": null,
+                        "stageName": null,
+                        "investmentAmount": null,
+                        "linkContent": null
+                    }
+                ],
+                "pageNum": 1,
+                "pageSize": 1,
+                "size": 1,
+                "startRow": 0,
+                "endRow": 0,
+                "pages": 40000,
+                "prePage": 0,
+                "nextPage": 2,
+                "hasPreviousPage": false,
+                "hasNextPage": true,
+                "navigatePages": 8,
+                "navigatePageNums": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8
+                ],
+                "navigateFirstPage": 1,
+                "navigateLastPage": 8,
+                "firstPage": true,
+                "lastPage": false
+            },
+            "timestamp": 1782091489613
+        }
+        我们需要对res.result.list里面的数据进行爬取，主要爬取title字段， updateTime是发布时间，主要拿这两个字段就行，给企业微信推送格式就填
+        关键词:   网络安全  
+        项目名称: xxx
+        类型：招标公告
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        （3）国际招标接口
+        接口同上，只是请求参数中tid为12.
+        注意：三个接口的pageSize都改成50，爬取过的招标公告不再进行爬取，企业微信的wenhook为 https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=f915e895-7a86-4718-a70e-10ee8acd9684
+
+
+
+    
+
+      

@@ -52,6 +52,22 @@ def load_config() -> dict:
     return cfg
 
 
+def iter_sources(cfg: dict):
+    """遍历所有数据源。
+
+    若配置中存在 sources 列表,则把每个数据源与全局配置(keywords/webhook 等)
+    合并后逐个产出(数据源字段优先);否则把顶层配置作为单一数据源(兼容旧配置)。
+    """
+    sources = cfg.get("sources")
+    if sources:
+        base = {k: v for k, v in cfg.items() if k != "sources"}
+        for src in sources:
+            merged = {**base, **(src or {})}
+            yield merged
+    else:
+        yield cfg
+
+
 def load_seen(seen_path: Path) -> set:
     if seen_path.exists():
         try:
@@ -196,20 +212,42 @@ def push_wechat(webhook: str, content: str) -> bool:
         return False
 
 
+def format_release_time(item: dict, cfg: dict) -> str:
+    """返回发布时间的展示字符串。
+
+    time_format 为 'date' 时,字段本身就是日期字符串(如 '2026-06-22'),直接展示;
+    否则按毫秒级时间戳解析。
+    """
+    field = cfg.get("start_time_field") or "releaseTime"
+    val = item.get(field)
+    if val in (None, ""):
+        return ""
+    if cfg.get("time_format", "ms") == "date":
+        return str(val)
+    dt = parse_ts(item, field)
+    return f"{dt:%Y-%m-%d %H:%M}" if dt else ""
+
+
 def build_message(item: dict, hits: list[str], cfg: dict) -> str:
-    business_name = str(item.get("businessName") or get_title(item, cfg))
-    release_time = parse_ts(item, "releaseTime")
+    title = str(item.get(cfg.get("title_field") or "") or get_title(item, cfg))
+    release_time = format_release_time(item, cfg)
     bid_end_time = parse_ts(item, "bidEndTime")
     tenderer_name = str(item.get("tendererName") or "")
+    type_label = str(cfg.get("type_label") or item.get("tname") or "")
+    site = str(cfg.get("site") or "")
     link = build_link(item, cfg)
     kw_str = "、".join(hits)
     lines = [
         "**🔔 命中关键词监控**",
         f"> 关键词: `{kw_str}`",
-        f"> 项目名称: {business_name}",
+        f"> 项目名称: {title}",
     ]
+    if site:
+        lines.append(f"> 网站: {site}")
+    if type_label:
+        lines.append(f"> 类型: {type_label}")
     if release_time:
-        lines.append(f"> 发布时间: {release_time:%Y-%m-%d %H:%M}")
+        lines.append(f"> 发布时间: {release_time}")
     if bid_end_time:
         lines.append(f"> 开标时间: {bid_end_time:%Y-%m-%d %H:%M}")
     if tenderer_name:
@@ -220,26 +258,29 @@ def build_message(item: dict, hits: list[str], cfg: dict) -> str:
     return "\n".join(lines)
 
 
-def run_once(cfg: dict, seen: set, seen_path: Path) -> None:
-    log.info("开始检查接口: %s", cfg["api_url"])
+def run_once(cfg: dict, seen: set) -> int:
+    """检查单个数据源,返回本轮新推送条数。不负责写入 seen 文件。"""
+    source_name = cfg.get("name") or cfg["api_url"]
+    log.info("开始检查数据源: %s", source_name)
     try:
         data = fetch(cfg)
     except requests.RequestException as e:
-        log.error("请求失败: %s", e)
-        return
+        log.error("[%s] 请求失败: %s", source_name, e)
+        return 0
     except ValueError as e:
-        log.error("返回内容不是合法 JSON: %s", e)
-        return
+        log.error("[%s] 返回内容不是合法 JSON: %s", source_name, e)
+        return 0
 
     # 请求成功,重置过期告警状态
     _alert_state["token_alerted"] = False
 
     items = dig(data, cfg.get("list_path", "data.list"))
     if not isinstance(items, list):
-        log.error("未在路径 '%s' 找到 list,请检查 list_path 配置。返回顶层键: %s",
-                  cfg.get("list_path"), list(data.keys()) if isinstance(data, dict) else type(data))
-        return
-    log.info("获取到 %d 条记录", len(items))
+        log.error("[%s] 未在路径 '%s' 找到 list,请检查 list_path 配置。返回顶层键: %s",
+                  source_name, cfg.get("list_path"),
+                  list(data.keys()) if isinstance(data, dict) else type(data))
+        return 0
+    log.info("[%s] 获取到 %d 条记录", source_name, len(items))
 
     keywords = cfg.get("keywords", [])
     case_sensitive = cfg.get("case_sensitive", False)
@@ -265,15 +306,24 @@ def run_once(cfg: dict, seen: set, seen_path: Path) -> None:
         rid = record_id(item, cfg)
         if rid in seen:
             continue
-        log.info("命中: %s (关键词: %s)", get_title(item, cfg), hits)
+        log.info("[%s] 命中: %s (关键词: %s)", source_name, get_title(item, cfg), hits)
         # 仅在推送成功后才标记为已读,避免推送失败造成漏推
         if push_wechat(webhook, build_message(item, hits, cfg)):
             seen.add(rid)
             new_hits += 1
 
-    if new_hits:
+    log.info("[%s] 完成,新推送 %d 条,跳过已过期 %d 条", source_name, new_hits, expired)
+    return new_hits
+
+
+def run_all(cfg: dict, seen: set, seen_path: Path) -> None:
+    """遍历所有数据源各检查一次,共享去重集合,最后统一落盘。"""
+    total_new = 0
+    for src in iter_sources(cfg):
+        total_new += run_once(src, seen)
+    if total_new:
         save_seen(seen_path, seen)
-    log.info("本轮完成,新推送 %d 条,跳过已过期 %d 条", new_hits, expired)
+    log.info("本轮全部数据源完成,合计新推送 %d 条", total_new)
 
 
 def main() -> None:
@@ -286,14 +336,14 @@ def main() -> None:
         or bool(cfg.get("run_once"))
     if run_once_mode:
         log.info("单次运行模式")
-        run_once(cfg, seen, seen_path)
+        run_all(cfg, seen, seen_path)
         return
 
     interval = cfg.get("interval_minutes", 10)
     log.info("启动监控,每 %d 分钟检查一次", interval)
 
-    run_once(cfg, seen, seen_path)  # 启动立即执行一次
-    schedule.every(interval).minutes.do(run_once, cfg, seen, seen_path)
+    run_all(cfg, seen, seen_path)  # 启动立即执行一次
+    schedule.every(interval).minutes.do(run_all, cfg, seen, seen_path)
 
     while True:
         schedule.run_pending()

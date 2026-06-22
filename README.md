@@ -1,12 +1,16 @@
 # 关键词接口监控爬虫
 
-定时请求国家管网免登录 JSON 接口，按当天发布时间范围抓取 `data.list`，当 `businessName` 命中自定义关键词时，自动推送到企业微信群机器人。
+定时请求多个招标公告 JSON 接口，当标题命中自定义关键词时，自动推送到企业微信群机器人。
+
+当前内置数据源：
+- **国家管网**：免登录接口 `pageEs`，按当天发布时间范围抓取 `data.list`，匹配 `businessName`。
+- **万项网-推荐招标**（tid=23）、**万项网-招标公告**（tid=2）、**万项网-国际招标**（tid=12）：抓取 `result.list`，匹配 `title`。
 
 ## 功能
-- 使用免登录接口 `pageEs`，无需 Cookie 或 Authorization
-- 每次请求自动设置当天 `releaseStartTime` 和 `releaseEndTime`
-- 仅匹配 `businessName` 字段中的关键词
-- 推送 `businessName`、`releaseTime`、`bidEndTime`、`tendererName`
+- 支持多数据源，统一关键词、统一去重、统一推送
+- 国家管网每次请求自动设置当天 `releaseStartTime` 和 `releaseEndTime`
+- 万项网三个接口 `pageSize=50`，已推送过的公告不再重复推送
+- 推送内容包含：关键词、项目名称、类型、发布时间、推送时间
 - 按 `id` 去重，已推送内容记录在 `seen.json`
 - 支持本地定时运行和 GitHub Actions 托管运行
 
@@ -18,12 +22,12 @@ pip install -r requirements.txt
 ## 配置
 编辑 `config.yaml`：
 
-1. **`keywords`**：需要监控的关键词，只会在 `businessName` 中搜索。
+1. **`keywords`**：需要监控的关键词（全局，所有数据源共用）。
 2. **`wechat_webhook`**：企业微信群机器人地址；部署到 GitHub Actions 时建议放到 Secret `BID_WEBHOOK`。
 3. **`interval_minutes`**：本地运行时的检查间隔。
-4. **`use_today_release_range`**：保持 `true`，程序会自动只抓当天发布内容。
+4. **`sources`**：数据源列表。每个数据源可单独配置 `api_url`、`method`、`params`/`body`、`list_path`、`match_fields`、`title_field`、`type_label`、`start_time_field`、`time_format` 等，未配置项会继承全局值。
 
-当前接口不需要登录令牌，不需要配置 Cookie、Authorization 或 `BID_AUTHORIZATION`。
+新增数据源时，只需在 `sources` 下追加一项即可，无需改动代码。
 
 ## 运行
 ```powershell
