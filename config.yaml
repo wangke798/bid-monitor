@@ -255,3 +255,20 @@ sources:
     start_time_field: "publishedTime"
     time_format: "date"
     detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 11: 中国石油招标中心 ----------
+  - name: "中国石油招标中心"
+    site: "中国石油招标中心"
+    api_url: "https://www2.cnpcbidding.com/project/index/centerNew"
+    method: "GET"
+    headers:
+      Accept: "application/json, text/plain, */*"
+    list_path: "data"
+    match_fields:
+      - "goodsName"
+      - "projectName"
+    id_field: "goodsId"
+    title_field: "goodsName"
+    type_label: "招标公告"
+    start_time_field: "createdTime"
+    time_format: "date"
