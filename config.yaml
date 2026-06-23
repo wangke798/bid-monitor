@@ -1,3 +1,4 @@
+
 # ============ 全局配置(所有数据源共享,可被单个数据源覆盖) ============
 
 # 关键词: 命中其中任意一个即视为相关内容
@@ -10,6 +11,7 @@ keywords:
   - "流量计"
   - "数据集"
   - "数据标注"
+  - "数据治理"
 
 # 是否区分大小写
 case_sensitive: false
@@ -18,7 +20,7 @@ case_sensitive: false
 timeout: 15
 
 # 每隔多少分钟检查一次(本地运行)
-interval_minutes: 60
+interval_minutes: 30
 
 # 去重记录文件(已推送过的内容不再重复推送)
 seen_file: "seen.json"
@@ -34,7 +36,6 @@ sources:
     site: "国家管网招标"
     api_url: "https://iscmdzzb.pipechina.com.cn:8081/api/saas-portal/noauth/trans/trade/pageEs"
     method: "POST"
-    # 请求体。releaseStartTime/releaseEndTime 会由程序自动改为当天 00:00:00-23:59:59
     body:
       pageNum: 1
       pageSize: 50
@@ -50,88 +51,207 @@ sources:
     use_today_release_range: true
     headers:
       Content-Type: "application/json;charset=UTF-8"
-      Accept: "application/json, text/plain, */*"
-      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
-      Origin: "https://iscmdzzb.pipechina.com.cn:8081"
-      Referer: "https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?"
-      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
     list_path: "data.list"
     match_fields:
       - "businessName"
     id_field: "id"
     title_field: "businessName"
-    # 发布时间字段为毫秒级时间戳
     start_time_field: "releaseTime"
     time_format: "ms"
     deadline_field: ""
     detail_url_template: ""
 
-  # ---------- 数据源 2: 万项网-推荐招标(tid=23) ----------
+  # ---------- 数据源 2: 万项网-推荐招标 ----------
   - name: "万项网-推荐招标"
     site: "万项网招标"
     api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
     method: "GET"
-    params:
-      tid: 23
-      pageSize: 50
-      pageNo: 1
-    headers:
-      Accept: "application/json, text/plain, */*"
-      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
-      Referer: "https://www.chinazbcg.com/listpage/23"
-      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    params: { tid: 23, pageSize: 50, pageNo: 1 }
     list_path: "result.list"
-    match_fields:
-      - "title"
+    match_fields: ["title"]
     id_field: "id"
     title_field: "title"
     type_label: "推荐招标"
-    # 发布时间字段为日期字符串,如 "2026-06-22"
     start_time_field: "updateTime"
     time_format: "date"
 
-  # ---------- 数据源 3: 万项网-招标公告(tid=2) ----------
+  # ---------- 数据源 3: 万项网-招标公告 ----------
   - name: "万项网-招标公告"
     site: "万项网招标"
     api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
     method: "GET"
-    params:
-      tid: 2
-      pageSize: 50
-      pageNo: 1
-    headers:
-      Accept: "application/json, text/plain, */*"
-      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
-      Referer: "https://www.chinazbcg.com/listpage/2"
-      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    params: { tid: 2, pageSize: 50, pageNo: 1 }
     list_path: "result.list"
-    match_fields:
-      - "title"
+    match_fields: ["title"]
     id_field: "id"
     title_field: "title"
     type_label: "招标公告"
     start_time_field: "updateTime"
     time_format: "date"
 
-  # ---------- 数据源 4: 万项网-国际招标(tid=12) ----------
+  # ---------- 数据源 4: 万项网-国际招标 ----------
   - name: "万项网-国际招标"
     site: "万项网招标"
     api_url: "https://www.chinazbcg.com/zbcg/web/infosListMore"
     method: "GET"
-    params:
-      tid: 12
-      pageSize: 50
-      pageNo: 1
-    headers:
-      Accept: "application/json, text/plain, */*"
-      Accept-Language: "en,zh-CN;q=0.9,zh;q=0.8,en-US;q=0.7"
-      Referer: "https://www.chinazbcg.com/listpage/12"
-      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+    params: { tid: 12, pageSize: 50, pageNo: 1 }
     list_path: "result.list"
-    match_fields:
-      - "title"
+    match_fields: ["title"]
     id_field: "id"
     title_field: "title"
     type_label: "国际招标"
     start_time_field: "updateTime"
     time_format: "date"
+
+  # # ---------- 中石油招标投标网 - 招标公告 ----------
+  # - name: "中石油-招标公告"
+  #   site: "中石油招标"
+  #   fetch_type: "playwright"
+  #   playwright_url: "https://www.cnpcbidding.com/"
+  #   api_url: "/cms/frontPage/init"
+  #   method: "POST"
+  #   use_today_release_range: false
+  #   list_path: "data.NOTICE_0001"
+  #   match_fields:
+  #     - "title"
+  #   id_field: "id"
+  #   title_field: "title"
+  #   type_label: "招标公告"
+  #   start_time_field: "publishedTime"
+  #   time_format: "date"
+
+  # # ---------- 中石油招标投标网 - 谈判采购公告 ----------
+  # - name: "中石油-谈判采购"
+  #   site: "中石油招标"
+  #   fetch_type: "playwright"
+  #   playwright_url: "https://www.cnpcbidding.com/"
+  #   api_url: "/cms/frontPage/init"
+  #   method: "POST"
+  #   use_today_release_range: false
+  #   list_path: "data.PURCHASE_1"
+  #   match_fields:
+  #     - "title"
+  #   id_field: "id"
+  #   title_field: "title"
+  #   type_label: "谈判采购公告"
+  #   start_time_field: "publishedTime"
+  #   time_format: "date"
+
+  # ---------- 数据源 5: 招标网 ----------
+  - name: "招标网"
+    site: "招标网"
+    fetch_type: "html"
+    html_parser: "zhaobiao"
+    playwright_url: "https://zb.zhaobiao.cn/bidding.html"
+    wait_selector: "tbody#datatbody"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "招标公告"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 6: 中国三峡集团招标 ----------
+  - name: "中国三峡集团"
+    site: "三峡集团招标"
+    fetch_type: "html"
+    html_parser: "ctg"
+    playwright_url: "https://eps.ctg.com.cn/cms/channel/1ywgg1/index.htm"
+    wait_selector: "ul#list1"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "招标公告"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 7: 中国通用招标网 ----------
+  - name: "中国通用招标网"
+    site: "通用招标网"
+    fetch_type: "html"
+    html_parser: "tongyong"
+    playwright_url: "https://cgci.china-tender.com.cn/zbgg/index.jhtml"
+    wait_selector: "div.List2"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "招标公告"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # # ---------- 招标采购导航网（需人工打码，暂不可用）----------
+  # - name: "招标采购导航网"
+  #   site: "招标采购导航网"
+  #   fetch_type: "html"
+  #   html_parser: "okcis"
+  #   playwright_url: "https://www.okcis.cn/bn/"
+  #   wait_selector: "div.tybl_list"
+  #   list_path: "list"
+  #   match_fields:
+  #     - "title"
+  #   id_field: "id"
+  #   title_field: "title"
+  #   type_label: "招标公告"
+  #   start_time_field: "publishedTime"
+  #   time_format: "date"
+  #   detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 8: 中招联合招标采购网 - 工程招标 ----------
+  - name: "中招联合-工程招标"
+    site: "中招联合招标采购网"
+    fetch_type: "html"
+    html_parser: "365trade"
+    playwright_url: "http://www.365trade.com.cn/zbgg/index.jhtml?typeId=101"
+    wait_selector: "ul.searchList"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "工程招标"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 9: 中招联合招标采购网 - 货物招标 ----------
+  - name: "中招联合-货物招标"
+    site: "中招联合招标采购网"
+    fetch_type: "html"
+    html_parser: "365trade"
+    playwright_url: "http://www.365trade.com.cn/zbgg/index.jhtml?typeId=102"
+    wait_selector: "ul.searchList"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "货物招标"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 10: 中招联合招标采购网 - 服务招标 ----------
+  - name: "中招联合-服务招标"
+    site: "中招联合招标采购网"
+    fetch_type: "html"
+    html_parser: "365trade"
+    playwright_url: "http://www.365trade.com.cn/zbgg/index.jhtml?typeId=103"
+    wait_selector: "ul.searchList"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "服务招标"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"

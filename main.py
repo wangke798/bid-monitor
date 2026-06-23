@@ -12,9 +12,12 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from typing import Optional, Dict, Set
+
 import requests
 import schedule
 import yaml
+from playwright.sync_api import sync_playwright, Page, Browser, Playwright
 
 
 def app_dir() -> Path:
@@ -39,6 +42,98 @@ log = logging.getLogger(__name__)
 
 # 运行期告警状态(保留兼容旧配置)
 _alert_state = {"token_alerted": False}
+
+# ── Playwright 浏览器管理 ──────────────────────────────────────────────
+_pw: Optional[Playwright] = None
+_browser: Optional[Browser] = None
+_page_cache: Dict[str, Page] = {}
+
+def _get_page(url: str) -> Page:
+    """获取或创建指定 base URL 的浏览器 Page（复用，避免反复启动浏览器）。
+
+    首次创建时注入 XHR monkey-patch，使页面发出的 axios 请求在解密后
+    被自动捕获到 window.__CAPTURED_XHR__ 中。
+    """
+    global _pw, _browser, _page_cache
+    if _pw is None:
+        _pw = sync_playwright().start()
+        _browser = _pw.chromium.launch(headless=True)
+        log.info("Playwright 浏览器已启动")
+    if url not in _page_cache:
+        page = _browser.new_page()
+        # 在页面 JS 加载前注入 XHR monkey-patch
+        page.add_init_script("""
+            (function() {
+                const OrigXHR = window.XMLHttpRequest;
+                window.XMLHttpRequest = function() {
+                    const xhr = new OrigXHR();
+                    const origOpen = xhr.open;
+                    const origSend = xhr.send;
+                    let _url, _method, _body, _startTime;
+
+                    xhr.open = function(method, url, ...args) {
+                        _url = url;
+                        _method = method;
+                        _startTime = Date.now();
+                        return origOpen.apply(this, [method, url, ...args]);
+                    };
+
+                    xhr.send = function(body) {
+                        _body = body;
+                        xhr.addEventListener('load', function() {
+                            try {
+                                const resp = {
+                                    url: _url,
+                                    method: _method,
+                                    requestBody: _body,
+                                    responseText: xhr.responseText,
+                                    responseJSON: null,
+                                    status: xhr.status,
+                                    elapsed: Date.now() - _startTime,
+                                };
+                                // 尝试解析 JSON 响应
+                                try {
+                                    resp.responseJSON = JSON.parse(xhr.responseText);
+                                } catch (_) {}
+                                window.__CAPTURED_XHR__ = window.__CAPTURED_XHR__ || [];
+                                window.__CAPTURED_XHR__.push(resp);
+                            } catch (_) {}
+                        });
+                        return origSend.apply(this, [body]);
+                    };
+                    return xhr;
+                };
+                window.XMLHttpRequest.prototype = OrigXHR.prototype;
+            })();
+        """)
+        page.goto(url, wait_until="networkidle", timeout=30000)
+        page.wait_for_timeout(6000)  # 等待 JS 完全初始化并发起首轮 API 请求
+        _page_cache[url] = page
+        log.info("Playwright 页面已就绪: %s", url)
+    return _page_cache[url]
+
+def _cleanup_browser() -> None:
+    """关闭 Playwright 浏览器，释放资源。"""
+    global _pw, _browser, _page_cache
+    for page in list(_page_cache.values()):
+        try:
+            page.close()
+        except Exception:
+            pass
+    _page_cache.clear()
+    if _browser:
+        try:
+            _browser.close()
+        except Exception:
+            pass
+        _browser = None
+    if _pw:
+        try:
+            _pw.stop()
+        except Exception:
+            pass
+        _pw = None
+    log.info("Playwright 浏览器已关闭")
 
 
 def load_config() -> dict:
@@ -93,8 +188,321 @@ class TokenExpired(Exception):
     """兼容旧版本配置的异常类型。"""
 
 
+# Playwright 接口响应缓存: 同一轮 run_all 中多个数据源共享同一页面,避免重复 reload
+_pw_resp_cache: Dict[str, tuple[float, dict]] = {}
+
+def _is_valid_api_response(captured: dict) -> bool:
+    """检查 Playwright 捕获的 API 响应是否为有效数据。
+
+    正常响应 code 为 "0000"，data 为含各板块列表的 dict；
+    触发验证码时 code 为 "511"，data 为 base64 图片字符串。
+    """
+    return isinstance(captured, dict) and isinstance(captured.get("data"), dict)
+
+
+def fetch_playwright(cfg: dict) -> dict:
+    """通过 Playwright 请求加密接口。
+
+    页面首次加载时已通过 add_init_script 注入了 XHR monkey-patch,
+    可捕获页面 axios 发出的加密请求及其明文 JSON 响应。
+    每次调用 reload 页面以触发新一轮 API 请求,再通过 window.__CAPTURED_XHR__
+    读取 axios 解密后的响应数据。
+
+    同一 playwright_url 在 30 秒内复用缓存的响应,避免同一轮中多个数据源重复 reload。
+    遇到验证码等异常响应时自动重试(默认最多 3 次)。
+    """
+    page = _get_page(cfg["playwright_url"])
+    api_url = cfg.get("api_url", "/cms/frontPage/init")
+
+    # 短时缓存: 30 秒内同一页面不重复 reload
+    cache_key = cfg["playwright_url"]
+    cache_entry = _pw_resp_cache.get(cache_key)
+    if cache_entry is not None:
+        cached_time, cached_data = cache_entry
+        if time.time() - cached_time < 30:
+            log.info("服用 Playwright 缓存响应 (%d 秒前)", int(time.time() - cached_time))
+            return cached_data
+
+    max_retries = cfg.get("playwright_retries", 3)
+    retry_delay = cfg.get("playwright_retry_delay", 5)
+    url_hint = api_url.rsplit("/", 1)[-1]
+
+    for attempt in range(1, max_retries + 1):
+        # 清空之前捕获的数据并 reload 触发新一轮 API 请求
+        page.evaluate("() => { window.__CAPTURED_XHR__ = []; }")
+        page.reload(wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(6000)  # 等待 JS 初始化完成并发出 API 请求
+
+        # 从捕获的 XHR 响应中找到目标 API 的明文 JSON
+        captured = page.evaluate(
+            """
+            (hint) => {
+                const all = window.__CAPTURED_XHR__ || [];
+                for (const entry of all) {
+                    if (entry.url && entry.url.includes(hint)) {
+                        return entry.responseJSON || JSON.parse(entry.responseText || 'null');
+                    }
+                }
+                return null;
+            }
+            """,
+            url_hint,
+        )
+
+        if captured is None:
+            xhr_count = page.evaluate("() => (window.__CAPTURED_XHR__ || []).length")
+            raise ValueError(f"未捕获到 {api_url} 的 API 响应，共捕获 {xhr_count} 个 XHR 请求")
+
+        if _is_valid_api_response(captured):
+            log.info("Playwright 响应有效 (第 %d 次尝试)", attempt)
+            _pw_resp_cache[cache_key] = (time.time(), captured)
+            return captured
+
+        code = captured.get("code", "?")
+        data_type = type(captured.get("data")).__name__
+        if attempt < max_retries:
+            log.warning(
+                "Playwright 响应异常 code=%s data 类型=%s，%d 秒后重试 (%d/%d)",
+                code, data_type, retry_delay, attempt, max_retries,
+            )
+            time.sleep(retry_delay)
+        else:
+            raise ValueError(
+                f"Playwright 重试 {max_retries} 次后仍未获取到有效响应 "
+                f"(code={code}，data 类型={data_type})，可能触发了验证码"
+            )
+
+    # 理论上不会走到这里，仅为完整性
+    raise RuntimeError("fetch_playwright 意外退出")
+
+
+def _parse_zhaobiao(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 招标网 zb.zhaobiao.cn 的投标列表。"""
+    tbody = soup.find("tbody", id="datatbody")
+    if not tbody:
+        raise ValueError("未在页面中找到 datatbody 表格")
+    items = []
+    for tr in tbody.find_all("tr", class_="datatr"):
+        a_tag = tr.find("a", href=True)
+        if not a_tag:
+            continue
+        title = a_tag.get("title", "").strip()
+        link = a_tag["href"]
+        if not link.startswith("http"):
+            link = "https://zb.zhaobiao.cn" + link
+        tds = tr.find_all("td")
+        province = tds[1].get_text(strip=True) if len(tds) > 1 else ""
+        publish_time = tds[2].get_text(strip=True) if len(tds) > 2 else ""
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "province": province,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
+def _parse_ctg(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 中国三峡集团 eps.ctg.com.cn 的投标列表。"""
+    ul = soup.find("ul", id="list1")
+    if not ul:
+        raise ValueError("未在页面中找到 ul#list1")
+    items = []
+    for li in ul.find_all("li", attrs={"name": "li_name"}):
+        a_tag = li.find("a", href=True)
+        if not a_tag:
+            continue
+        title = a_tag.get("title", "").strip()
+        link = a_tag["href"]
+        if not link.startswith("http"):
+            link = "https://eps.ctg.com.cn" + link
+        # 日期在 <a> 内的最后一个 <em>
+        ems = a_tag.find_all("em")
+        publish_time = ems[-1].get_text(strip=True) if ems else ""
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
+def _parse_tongyong(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 中国通用招标网 cgci.china-tender.com.cn 的投标列表。"""
+    container = soup.find("div", class_="List2")
+    if not container:
+        raise ValueError("未在页面中找到 div.List2")
+    items = []
+    for li in container.find_all("li"):
+        a_tag = li.find("a", href=True)
+        if not a_tag:
+            continue
+        title = a_tag.get_text(strip=True)
+        link = a_tag["href"]
+        if not link.startswith("http"):
+            link = "https://cgci.china-tender.com.cn" + link
+        # 日期: <span class="Gray Right">发布时间：2026-06-23</span>
+        date_span = li.find("span", class_="Gray")
+        publish_time = ""
+        if date_span:
+            text = date_span.get_text(strip=True)
+            publish_time = text.replace("发布时间：", "").strip()
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
+def _parse_okcis(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 招标采购导航网 www.okcis.cn/bn/ 的投标列表。"""
+    container = soup.find("div", class_="tybl_list")
+    if not container:
+        raise ValueError("未在页面中找到 div.tybl_list")
+    items = []
+    for ul in container.find_all("ul"):
+        # 标题在第一个 <li> 的 <a> 中
+        first_li = ul.find("li")
+        if not first_li:
+            continue
+        a_tag = first_li.find("a", href=True, title=True)
+        if not a_tag:
+            continue
+        title = a_tag.get("title", "").strip()
+        link = a_tag["href"]
+        if not link.startswith("http"):
+            link = "https://www.okcis.cn" + link
+        # 日期在第二个 <li> 的 <b style="float: right"> 中，格式 "浙江-衢州 &nbsp; 2026-06-23"
+        lis = ul.find_all("li")
+        publish_time = ""
+        if len(lis) > 1:
+            date_b = lis[1].find("b", style=lambda v: v and "float: right" in v if v else False)
+            if date_b:
+                text = date_b.get_text(" ", strip=True)
+                if "\xa0" in text or "&nbsp;" in text:
+                    parts = text.replace("\xa0", " ").split()
+                    publish_time = parts[-1] if parts else ""
+                else:
+                    parts = text.rsplit(" ", 1)
+                    publish_time = parts[-1] if len(parts) > 1 else text
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
+def _parse_365trade(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 中招联合招标采购网 www.365trade.com.cn 的投标列表。"""
+    ul = soup.find("ul", class_="searchList")
+    if not ul:
+        raise ValueError("未在页面中找到 ul.searchList")
+    items = []
+    for li in ul.find_all("li"):
+        a_tag = li.find("a", href=True)
+        if not a_tag:
+            continue
+        # 标题在 <span class="span_hover" title="...">
+        span = a_tag.find("span", class_="span_hover")
+        if span:
+            title = span.get("title", "").strip()
+        else:
+            title = a_tag.get_text(strip=True)
+        link = a_tag["href"]
+        if not link.startswith("http"):
+            link = "http://www.365trade.com.cn" + link
+        # 日期: <i class="fl dis_block release_date">发布日期：2026-06-23</i>
+        date_i = a_tag.find("i", class_="release_date")
+        publish_time = ""
+        if date_i:
+            text = date_i.get_text(strip=True)
+            publish_time = text.replace("发布日期：", "").strip()
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
+# 解析器注册表
+_HTML_PARSERS = {
+    "zhaobiao": _parse_zhaobiao,
+    "ctg": _parse_ctg,
+    "tongyong": _parse_tongyong,
+    "okcis": _parse_okcis,
+    "365trade": _parse_365trade,
+}
+
+
+def fetch_html(cfg: dict) -> dict:
+    """通过 Playwright 加载 HTML 页面，根据 html_parser 配置选择解析策略。
+
+    与 fetch_playwright 不同，HTML 模式不需要 XHR monkey-patch，
+    使用 domcontentloaded 即可，避免 networkidle 在某些站点超时。
+    每个 HTML 数据源使用独立的非缓存页面以保证数据新鲜。
+
+    支持的 html_parser:
+      zhaobiao - 招标网 zb.zhaobiao.cn
+      ctg      - 中国三峡集团 eps.ctg.com.cn
+      tongyong - 中国通用招标网 cgci.china-tender.com.cn
+      okcis    - 招标采购导航网 www.okcis.cn
+      365trade - 中招联合招标采购网 www.365trade.com.cn
+    """
+    from bs4 import BeautifulSoup
+
+    global _pw, _browser
+
+    parser_name = cfg.get("html_parser", "zhaobiao")
+    parser = _HTML_PARSERS.get(parser_name)
+    if parser is None:
+        raise ValueError(
+            f"未知的 html_parser: {parser_name}，可选值: {list(_HTML_PARSERS.keys())}"
+        )
+
+    # 确保浏览器已启动（复用全局实例）
+    if _pw is None:
+        _pw = sync_playwright().start()
+        _browser = _pw.chromium.launch(headless=True)
+        log.info("Playwright 浏览器已启动")
+
+    wait_selector = cfg.get("wait_selector")
+    page_url = cfg["playwright_url"]
+
+    page = _browser.new_page()
+    try:
+        page.goto(page_url, wait_until="domcontentloaded", timeout=30000)
+        if wait_selector:
+            page.wait_for_selector(wait_selector, timeout=15000)
+        page.wait_for_timeout(2000)
+
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
+        items = parser(soup, cfg)
+
+        log.info("HTML[%s] 解析完成，获取到 %d 条记录", parser_name, len(items))
+        return {"list": items}
+    finally:
+        page.close()
+
+
 def fetch(cfg: dict) -> dict:
-    """请求接口,返回解析后的 JSON 字典。"""
+    """请求接口,返回解析后的 JSON 字典。
+    根据 fetch_type 自动选择 requests、Playwright 或 HTML 解析方式。
+    """
+    # Playwright 模式: 由浏览器 JS 处理加解密
+    if cfg.get("fetch_type") == "playwright":
+        return fetch_playwright(cfg)
+    # HTML 解析模式: 使用 Playwright 加载页面后直接解析 DOM
+    if cfg.get("fetch_type") == "html":
+        return fetch_html(cfg)
     method = cfg.get("method", "GET").upper()
     headers = build_headers(cfg)
     kwargs = {
@@ -264,11 +672,12 @@ def run_once(cfg: dict, seen: set) -> int:
     log.info("开始检查数据源: %s", source_name)
     try:
         data = fetch(cfg)
-    except requests.RequestException as e:
+    except (requests.RequestException, ValueError) as e:
         log.error("[%s] 请求失败: %s", source_name, e)
         return 0
-    except ValueError as e:
-        log.error("[%s] 返回内容不是合法 JSON: %s", source_name, e)
+    except Exception as e:
+        # Playwright 等非 requests 的异常也统一捕获
+        log.error("[%s] 抓取异常 (%s): %s", source_name, type(e).__name__, e)
         return 0
 
     # 请求成功,重置过期告警状态
@@ -355,3 +764,5 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         log.info("已手动停止")
+    finally:
+        _cleanup_browser()

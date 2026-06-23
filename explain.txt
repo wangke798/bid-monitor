@@ -81,7 +81,7 @@
             "timestamp": 1782091145434
         }
 
-        我们需要对res.result.list里面的数据进行爬取，主要爬取title字段， updateTime是发布时间，主要拿这两个字段就行，给企业微信推送格式就填
+        我们需要对res.result.list里面的数据进行爬取，主要格式就填爬取title字段， updateTime是发布时间，主要拿这两个字段就行，给企业微信推送
         关键词:   网络安全  
         项目名称: xxx
         类型：推荐招标

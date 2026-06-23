@@ -1,0 +1,899 @@
+推荐招标接口：
+curl 'https://zb.zhaobiao.cn/bidding.html' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Cookie: _clsk=z3k2p6%5E1782198730630%5E9%5E0%5Eb.clarity.ms%2Fcollect; JSESSIONID=E807F0171DFCDE2DCC35E39F5794AB4E; __jsluid_s=c123d4987705d655ec0be12dba2ecfb4; _clck=ph34ku%5E2%5Eg75%5E0%5E2365; reg_referer=aHR0cHM6Ly93d3cuemhhb2JpYW8uY24v' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Referer: https://zb.zhaobiao.cn/succeed.html' \
+-H 'Priority: u=0, i'
+
+返回值格式：
+                <div class="searchaltab searchaltab_tb visited">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" id="togglefont" class="searchaltab-table">
+                    <tbody>
+                    <tr class="othertr" id="datalisttitle">
+                        <td width="61%" align="center" scope="col">标题</td>
+                        <td width="10%" align="center" scope="col">地点</td>
+                        <td width="14%" align="center" scope="col">发布时间</td>
+                    </tr>
+                    </tbody>
+                    <tbody id="datatbody">
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_c11c7115c5a588e1922be7c78353bb7e.html" target="_blank"
+                               title="江苏中煤环保科技公司鄂尔多斯煤矿项目部生产用车租赁服务（2026年度）询价通知">江苏中煤环保科技公司鄂尔多斯煤矿项目部生产用车租赁服务（2026年度）询价通知</a>
+
+
+                        </td>
+                        <td align="center">江苏</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_10bb25f96b81fc9d695d1025531e0c82.html" target="_blank"
+                               title="内蒙君正热电网络收发设备采购">内蒙君正热电网络收发设备采购</a>
+
+
+                        </td>
+                        <td align="center">内蒙古</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_d515a9b7d7f8feafe280ac5a843ad930.html" target="_blank"
+                               title="九阳下置隐藏水桶饮水机">九阳下置隐藏水桶饮水机</a>
+                            <a class="w-itemDown">
+                                <img src="https://zb.zhaobiao.cn/base/img/icon/biaoshu.gif" width="33" height="15">
+                            </a>
+
+                        </td>
+                        <td align="center">江苏</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_067a93ba600d98d00c8d85f36e776393.html" target="_blank"
+                               title="夏秋季爱国卫生运动防蚊灭蚊宣传品采购项目竞争性磋商公告">夏秋季爱国卫生运动防蚊灭蚊宣传品采购项目竞争性磋商公告</a>
+
+
+                        </td>
+                        <td align="center">上海</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_16c143680d65df07c705bc9c978ae78e.html" target="_blank"
+                               title="捆绑支座询价公告">捆绑支座询价公告</a>
+
+
+                        </td>
+                        <td align="center">天津</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+                    <tr class="datatr">
+                        <td><a href="https://zb.zhaobiao.cn/bidding_v_954b00b521814ce1b21adcc9ed55ae52.html" target="_blank"
+                               title="修水县第四中学A区篮球场改造项目竞价公告">修水县第四中学A区篮球场改造项目竞价公告</a>
+                            <a class="w-itemDown">
+                                <img src="https://zb.zhaobiao.cn/base/img/icon/biaoshu.gif" width="33" height="15">
+                            </a>
+
+                        </td>
+                        <td align="center">江西</td>
+                        <td align="center">2026-06-23</td>
+                    </tr>
+
+
+        我们需要对bidding.html里面的数据进行爬取，主要格式就填爬取title字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：招标网招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+推荐招标接口：
+curl 'https://eps.ctg.com.cn/cms/channel/1ywgg1/index.htm' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: none' \
+-H 'Cookie: JSESSIONID=A6E117AE321CAEC05F3FCC48438D491A; JSESSIONID=9CF19FD9C70B5FD497A00DC4F1B02F62' \
+-H 'Referer: https://eps.ctg.com.cn/cms/channel/1ywgg4/index.htm' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+返回值格式：
+                <!--  全部招标信息列表  -->
+
+			<!-- 其他栏目 -->
+			<div class="infolist-main bidlist bidlist2">
+				<ul id="list1">
+
+						<!-- 当channel??&&channel.id==241时候显示241下所有栏目信息-->
+							<li name="li_name">
+								<a id="0" href="/cms/channel/1ywgg1/240636170.htm" title="2027-2029年度葛洲坝电站GCB室、母线室带电设备隔离防护与绝缘化改造项目设备安装施工招标公告"  target="_blank" style="">
+									<span style="max-width: 700px;"><!-- mark20211126修改：临时调整去除状态 -->
+										<i class="iconfont">&#xe638;</i>
+										<em style="width:6.5em; color: #1e52a8;font-weight: 700;float: none;">
+
+												<!-- 采购方式 -->
+
+										</em>
+										2027-2029年度葛洲坝电站GCB室、母线室带电设备隔离防护与绝缘化改造项目设备安装施工招标公告
+									</span>
+									<!-- 时间 -->
+									<em>
+											2026-06-23
+									</em>
+									<!-- 状态 -->
+								</a>
+							</li>
+							<li name="li_name">
+								<a id="1" href="/cms/channel/1ywgg1/240636154.htm" title="三峡内蒙古鄂尔多斯市70万千瓦风电项目设备监造服务招标公告"  target="_blank" style="">
+									<span style="max-width: 700px;"><!-- mark20211126修改：临时调整去除状态 -->
+										<i class="iconfont">&#xe638;</i>
+										<em style="width:6.5em; color: #1e52a8;font-weight: 700;float: none;">
+
+												<!-- 采购方式 -->
+
+										</em>
+										三峡内蒙古鄂尔多斯市70万千瓦风电项目设备监造服务招标公告
+									</span>
+									<!-- 时间 -->
+									<em>
+											2026-06-23
+									</em>
+									<!-- 状态 -->
+								</a>
+							</li>
+							<li name="li_name">
+								<a id="2" href="/cms/channel/1ywgg1/240636149.htm" title="三峡内蒙古鄂尔多斯市70万千瓦风电项目工程监理服务 招标公告"  target="_blank" style="">
+									<span style="max-width: 700px;"><!-- mark20211126修改：临时调整去除状态 -->
+										<i class="iconfont">&#xe638;</i>
+										<em style="width:6.5em; color: #1e52a8;font-weight: 700;float: none;">
+
+												<!-- 采购方式 -->
+
+										</em>
+										三峡内蒙古鄂尔多斯市70万千瓦风电项目工程监理服务 招标公告
+									</span>
+									<!-- 时间 -->
+									<em>
+											2026-06-23
+									</em>
+									<!-- 状态 -->
+								</a>
+							</li>
+							<li name="li_name">
+								<a id="3" href="/cms/channel/1ywgg1/240636136.htm" title="三峡若羌6×66万千瓦煤电项目EPC总承包暂估价燃料采制化及附属设备采购招标公告"  target="_blank" style="">
+									<span style="max-width: 700px;"><!-- mark20211126修改：临时调整去除状态 -->
+										<i class="iconfont">&#xe638;</i>
+										<em style="width:6.5em; color: #1e52a8;font-weight: 700;float: none;">
+
+												<!-- 采购方式 -->
+
+										</em>
+										三峡若羌6×66万千瓦煤电项目EPC总承包暂估价燃料采制化及附属设备采购招标公告
+									</span>
+									<!-- 时间 -->
+									<em>
+											2026-06-22
+									</em>
+									<!-- 状态 -->
+								</a>
+							</li>
+							<li name="li_name">
+								<a id="4" href="/cms/channel/1ywgg1/240636135.htm" title="三峡蒙能东胜热电近区(色连)4×1000MW扩建项目全厂瓷砖采购招标公告"  target="_blank" style="">
+									<span style="max-width: 700px;"><!-- mark20211126修改：临时调整去除状态 -->
+										<i class="iconfont">&#xe638;</i>
+										<em style="width:6.5em; color: #1e52a8;font-weight: 700;float: none;">
+
+												<!-- 采购方式 -->
+
+										</em>
+
+
+        我们需要对index.htm里面的数据进行爬取，主要格式就填爬取title字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：中国三峡集团招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+
+
+        推荐招标接口：
+curl 'https://cgci.china-tender.com.cn/zbgg/index.jhtml' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: same-origin' \
+-H 'Cookie: __51laig__=6; __tins__21504791=%7B%22sid%22%3A%201782201791261%2C%20%22vd%22%3A%206%2C%20%22expires%22%3A%201782203689695%7D; SESSION=MmNiODg0NzktMGJiYS00NTU1LWIwMDEtZGYwODcyYTQyZDE4; j_logintype=form; route=b81ed9a242f1f175c7c4db0176705080; JSESSIONID=6104CC0BD39312F6EB025F7B2A4AC364; __51cke__=' \
+-H 'Referer: https://cgci.china-tender.com.cn/zbgg/index.jhtml' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+返回值格式：
+               <div class="W900 Right">
+	<!--jiaoyi begin-->
+	<div class="ConBox1" style="min-height:850px;">
+	<div class="Title3"><h2>招标采购公告</h2></div>
+	<div class="List2 Top5">
+		<ul>
+		  <li>
+			  <a href="/zbhw/129815.jhtml">中盐青海昆仑碱业有限公司-架子车轮胎-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">陶成菊</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">12</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129814.jhtml">中盐青海昆仑碱业有限公司-中盐昆碱（RO反渗透纯水机）6.10-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">陶成菊</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">9</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbfw/129813.jhtml">中国铁塔股份有限公司山东省分公司、铁塔智联技术有限公司山东省分公司2026年第二期智联业务合...</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">本站编辑</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">29</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129810.jhtml">中盐常州化工股份有限公司-2026000653-常化新东精细有机双氧水厂紧固件26年6月-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">虞明皓</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">31</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129809.jhtml">内蒙古兰太药业有限责任公司-内蒙古兰太药业有限责任公司-化学试剂-2026.6.23-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">李彦飞</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">32</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129808.jhtml">内蒙古兰太药业有限责任公司-内蒙古兰太药业有限责任公司-配件-2026.6.23-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">李彦飞</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">31</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129807.jhtml">中盐常州化工股份有限公司-2026000644-常化氯碱精细厂金属管件26年6月-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">虞明皓</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">31</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129806.jhtml">中盐常州化工股份有限公司-2026000589-常化氯碱厂板框压滤机26年5月-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">虞明皓</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">30</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+		  <li>
+			  <a href="/zbhw/129805.jhtml">中盐常州化工股份有限公司-2026000593-新东分析中心硼氢化钾26年5月-采购公告</a>
+			  <p><span class="Right10">作者：<span><a href="#" class="Orange">虞明皓</a></span></span><span class="Right10">访问次数：<span><a href="#" class="Orange">35</a>次</span></span><span class="Gray Right">发布时间：2026-06-23</span></p>
+		  </li>
+
+
+        我们需要对index.htm里面的数据进行爬取，主要格式就填爬取标题字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：中国通用招标网招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+
+
+                推荐招标接口：
+curl 'https://www.okcis.cn/bn/' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: none' \
+-H 'Cookie: day_add_time=2026-06-23; day_add_time_newsite_rn=2026-06-23; day_count=2; day_count_newsite_rn=2; minute_add_time=2026-06-23+16%3A08%3A08; minute_add_time_newsite_rn=2026-06-23+16%3A08%3A08; minute_count=2; minute_count_newsite_rn=2; nologinsearchcount=2; et4321=2026-06-23+16%3A07%3A38COOKIEITEMCOOKIEITEM61.48.253.46COOKIEITEM192.168.0.87; DT_USER_TYPE=old; chatCookieId=a7ub9llorkboajbsd7h3etm1p2; REgafgrABC=%7C0%7C192.168.0.87%7C1%7C%7Chttps%3A%2F%2Fwww.okcis.cn%2F%7CMozilla%2F5.0+%28Macintosh%3B+Intel+Mac+OS+X+10_15_7%29+AppleWebKit%2F605.1.15+%28KHTML%2C+like+Gecko%29+Version%2F26.3+Safari%2F605.1.15; DATA_USER_ID=dnShKXOOTSNR_7hKM2zIgg%3D%3D; PHPSESSID=a7ub9llorkboajbsd7h3etm1p2; cookieId=61.48.253.46e361a3815d207118615472fa9fd88a27202606231607; HBB_HC=e868ac9d49cbc301b24046856e02d5a8b061d0b3e9fa58654f49d298fbd339d42d663891389c687e67b19007a49989b80f; HMF_CI=217b4262a30cfec1c4530397c4aee4d8b0a5a8984ad73d7dc955a39d7cd28062ef6a45a8373d9727a5eeed243e469e382403d8e184a97ad3f01d52a6182942a056' \
+-H 'Referer: https://www.okcis.cn/' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+返回值格式：
+               <div class="tybl_list">
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623161018489044">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623161018489044_衢江区中医院A3大型彩色扫描复印打印机设备采购公告_/20260623-n2-20260623161018489044.html_330803" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623161018489044" rec_title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" rec_city="330803" rec_link="/20260623-n2-20260623161018489044.html" rec_fuj="2026/06/23/260623161002477005.xlsx,2026/06/23/260623161002497250.docx" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623161018489044">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623161018489044.html" title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" target="_blank" rec="bn_/20260623-n2-20260623161018489044.html_衢江区中医院A3大型彩色扫描复印打印机设备采购公告_20260623161018489044" rec_type="bn" rec_link="/20260623-n2-20260623161018489044.html" rec_title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" rec_city="330803" rec_uniseq="20260623161018489044" onclick="itemListLooNoLogin(this)" bmpartnum="20260623161018489044">
+
+                                                衢江区中医院A3大型彩色扫描复印打印机设备采购公告
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:教学设备 复印和胶印设备 其他文化、办公用设备 网络设备 </b>
+                            <b style="float: right">浙江-衢州 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856907803">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856907803_关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函_/20260623-n2-20260623160856907803.html_441300" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856907803" rec_title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" rec_city="441300" rec_link="/20260623-n2-20260623160856907803.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856907803">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856907803.html" title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" target="_blank" rec="bn_/20260623-n2-20260623160856907803.html_关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函_20260623160856907803" rec_type="bn" rec_link="/20260623-n2-20260623160856907803.html" rec_title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" rec_city="441300" rec_uniseq="20260623160856907803" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856907803">
+                                            关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函
+                                                                                    </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:绘图、计算及测量仪器 水泥 包装专用设备 </b>
+                            <b style="float: right">广东-惠州 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856907556">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856907556_绍兴市人民医院病理检验类耗材非政府采购意向_/20260623-n2-20260623160856907556.html_330600" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856907556" rec_title="绍兴市人民医院病理检验类耗材非政府采购意向" rec_city="330600" rec_link="/20260623-n2-20260623160856907556.html" rec_fuj="2026/06/23/260623142559748640.docx" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856907556">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856907556.html" title="绍兴市人民医院病理检验类耗材非政府采购意向" target="_blank" rec="bn_/20260623-n2-20260623160856907556.html_绍兴市人民医院病理检验类耗材非政府采购意向_20260623160856907556" rec_type="bn" rec_link="/20260623-n2-20260623160856907556.html" rec_title="绍兴市人民医院病理检验类耗材非政府采购意向" rec_city="330600" rec_uniseq="20260623160856907556" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856907556">
+
+                                                绍兴市人民医院病理检验类耗材非政府采购意向
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b style="float: right">浙江-绍兴 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856901415">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856901415_江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告_/20260623-n2-20260623160856901415.html_360100" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856901415" rec_title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" rec_city="360100" rec_link="/20260623-n2-20260623160856901415.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856901415">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856901415.html" title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" target="_blank" rec="bn_/20260623-n2-20260623160856901415.html_江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告_20260623160856901415" rec_type="bn" rec_link="/20260623-n2-20260623160856901415.html" rec_title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" rec_city="360100" rec_uniseq="20260623160856901415" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856901415">
+                                            江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告
+                                                                                    </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:地质勘探和地震专用仪器 金属门窗 社会公共安全设备 办公家具 </b>
+                            <b style="float: right">江西-南昌 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160855901714">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160855901714_2026年稻虾综合种养示范基地建设项目的招标文件_/20260623-n2-20260623160855901714.html_510000" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160855901714" rec_title="2026年稻虾综合种养示范基地建设项目的招标文件" rec_city="510000" rec_link="/20260623-n2-20260623160855901714.html" rec_fuj="2026/06/23/260623142854903584.doc" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160855901714">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160855901714.html" title="2026年稻虾综合种养示范基地建设项目的招标文件" target="_blank" rec="bn_/20260623-n2-20260623160855901714.html_2026年稻虾综合种养示范基地建设项目的招标文件_20260623160855901714" rec_type="bn" rec_link="/20260623-n2-20260623160855901714.html" rec_title="2026年稻虾综合种养示范基地建设项目的招标文件" rec_city="510000" rec_uniseq="20260623160855901714" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160855901714">
+
+                                                2026年稻虾综合种养示范基地建设项目的招标文件
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b style="float: right">四川-四川 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160855898804">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160855898804_关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告_/20260623-n2-20260623160855898804.html_500106" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160855898804" rec_title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" rec_city="500106" rec_link="/20260623-n2-20260623160855898804.html" rec_fuj="2026/06/23/260623142837899387.pdf" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160855898804">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160855898804.html" title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" target="_blank" rec="bn_/20260623-n2-20260623160855898804.html_关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告_20260623160855898804" rec_type="bn" rec_link="/20260623-n2-20260623160855898804.html" rec_title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" rec_city="500106" rec_uniseq="20260623160855898804" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160855898804">
+
+                                                关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:交通安全设施 土工材料 其他 金属切削机床 教学设备 清淤机械 </b>
+                            <b class="tybll_onc">招标单位:重庆大学</b>
+                            <b style="float: right">重庆-沙坪坝 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160813147492">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160813147492_湖北西陵城市发展集团有限公司宜昌北站广告服务采购(第2次采购)_/20260623-n2-20260623160813147492.html_420500" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160813147492" rec_title="湖北西陵城市发展集团有限公司宜昌北站广告服务采购(第2次采购)" rec_city="420500" rec_link="/20260623-n2-20260623160813147492.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160813147492">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+
+        我们需要对bn里面的数据进行爬取，主要格式就填爬取标题字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：招标采购导航网招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+
+
+
+                推荐招标接口：
+curl 'https://www.okcis.cn/bn/' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Sec-Fetch-Site: none' \
+-H 'Cookie: day_add_time=2026-06-23; day_add_time_newsite_rn=2026-06-23; day_count=2; day_count_newsite_rn=2; minute_add_time=2026-06-23+16%3A08%3A08; minute_add_time_newsite_rn=2026-06-23+16%3A08%3A08; minute_count=2; minute_count_newsite_rn=2; nologinsearchcount=2; et4321=2026-06-23+16%3A07%3A38COOKIEITEMCOOKIEITEM61.48.253.46COOKIEITEM192.168.0.87; DT_USER_TYPE=old; chatCookieId=a7ub9llorkboajbsd7h3etm1p2; REgafgrABC=%7C0%7C192.168.0.87%7C1%7C%7Chttps%3A%2F%2Fwww.okcis.cn%2F%7CMozilla%2F5.0+%28Macintosh%3B+Intel+Mac+OS+X+10_15_7%29+AppleWebKit%2F605.1.15+%28KHTML%2C+like+Gecko%29+Version%2F26.3+Safari%2F605.1.15; DATA_USER_ID=dnShKXOOTSNR_7hKM2zIgg%3D%3D; PHPSESSID=a7ub9llorkboajbsd7h3etm1p2; cookieId=61.48.253.46e361a3815d207118615472fa9fd88a27202606231607; HBB_HC=e868ac9d49cbc301b24046856e02d5a8b061d0b3e9fa58654f49d298fbd339d42d663891389c687e67b19007a49989b80f; HMF_CI=217b4262a30cfec1c4530397c4aee4d8b0a5a8984ad73d7dc955a39d7cd28062ef6a45a8373d9727a5eeed243e469e382403d8e184a97ad3f01d52a6182942a056' \
+-H 'Referer: https://www.okcis.cn/' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+返回值格式：
+               <div class="tybl_list">
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623161018489044">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623161018489044_衢江区中医院A3大型彩色扫描复印打印机设备采购公告_/20260623-n2-20260623161018489044.html_330803" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623161018489044" rec_title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" rec_city="330803" rec_link="/20260623-n2-20260623161018489044.html" rec_fuj="2026/06/23/260623161002477005.xlsx,2026/06/23/260623161002497250.docx" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623161018489044">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623161018489044.html" title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" target="_blank" rec="bn_/20260623-n2-20260623161018489044.html_衢江区中医院A3大型彩色扫描复印打印机设备采购公告_20260623161018489044" rec_type="bn" rec_link="/20260623-n2-20260623161018489044.html" rec_title="衢江区中医院A3大型彩色扫描复印打印机设备采购公告" rec_city="330803" rec_uniseq="20260623161018489044" onclick="itemListLooNoLogin(this)" bmpartnum="20260623161018489044">
+
+                                                衢江区中医院A3大型彩色扫描复印打印机设备采购公告
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:教学设备 复印和胶印设备 其他文化、办公用设备 网络设备 </b>
+                            <b style="float: right">浙江-衢州 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856907803">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856907803_关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函_/20260623-n2-20260623160856907803.html_441300" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856907803" rec_title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" rec_city="441300" rec_link="/20260623-n2-20260623160856907803.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856907803">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856907803.html" title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" target="_blank" rec="bn_/20260623-n2-20260623160856907803.html_关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函_20260623160856907803" rec_type="bn" rec_link="/20260623-n2-20260623160856907803.html" rec_title="关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函" rec_city="441300" rec_uniseq="20260623160856907803" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856907803">
+                                            关于2026年九龙峰旅游区谭公村排水管铺设项目测量服务的询价函
+                                                                                    </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:绘图、计算及测量仪器 水泥 包装专用设备 </b>
+                            <b style="float: right">广东-惠州 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856907556">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856907556_绍兴市人民医院病理检验类耗材非政府采购意向_/20260623-n2-20260623160856907556.html_330600" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856907556" rec_title="绍兴市人民医院病理检验类耗材非政府采购意向" rec_city="330600" rec_link="/20260623-n2-20260623160856907556.html" rec_fuj="2026/06/23/260623142559748640.docx" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856907556">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856907556.html" title="绍兴市人民医院病理检验类耗材非政府采购意向" target="_blank" rec="bn_/20260623-n2-20260623160856907556.html_绍兴市人民医院病理检验类耗材非政府采购意向_20260623160856907556" rec_type="bn" rec_link="/20260623-n2-20260623160856907556.html" rec_title="绍兴市人民医院病理检验类耗材非政府采购意向" rec_city="330600" rec_uniseq="20260623160856907556" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856907556">
+
+                                                绍兴市人民医院病理检验类耗材非政府采购意向
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b style="float: right">浙江-绍兴 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160856901415">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160856901415_江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告_/20260623-n2-20260623160856901415.html_360100" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160856901415" rec_title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" rec_city="360100" rec_link="/20260623-n2-20260623160856901415.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160856901415">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160856901415.html" title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" target="_blank" rec="bn_/20260623-n2-20260623160856901415.html_江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告_20260623160856901415" rec_type="bn" rec_link="/20260623-n2-20260623160856901415.html" rec_title="江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告" rec_city="360100" rec_uniseq="20260623160856901415" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160856901415">
+                                            江西心远管理咨询有限公司关于江西新建农村商业银行股份有限公司新办公大楼10楼消防改造及档案室密集架设备采购项目(采购编号:JXXY2026-C025)竞争性磋商补充公告
+                                                                                    </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:地质勘探和地震专用仪器 金属门窗 社会公共安全设备 办公家具 </b>
+                            <b style="float: right">江西-南昌 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160855901714">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160855901714_2026年稻虾综合种养示范基地建设项目的招标文件_/20260623-n2-20260623160855901714.html_510000" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160855901714" rec_title="2026年稻虾综合种养示范基地建设项目的招标文件" rec_city="510000" rec_link="/20260623-n2-20260623160855901714.html" rec_fuj="2026/06/23/260623142854903584.doc" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160855901714">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160855901714.html" title="2026年稻虾综合种养示范基地建设项目的招标文件" target="_blank" rec="bn_/20260623-n2-20260623160855901714.html_2026年稻虾综合种养示范基地建设项目的招标文件_20260623160855901714" rec_type="bn" rec_link="/20260623-n2-20260623160855901714.html" rec_title="2026年稻虾综合种养示范基地建设项目的招标文件" rec_city="510000" rec_uniseq="20260623160855901714" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160855901714">
+
+                                                2026年稻虾综合种养示范基地建设项目的招标文件
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b style="float: right">四川-四川 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160855898804">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160855898804_关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告_/20260623-n2-20260623160855898804.html_500106" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160855898804" rec_title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" rec_city="500106" rec_link="/20260623-n2-20260623160855898804.html" rec_fuj="2026/06/23/260623142837899387.pdf" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160855898804">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+                            <a href="https://www.okcis.cn/20260623-n2-20260623160855898804.html" title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" target="_blank" rec="bn_/20260623-n2-20260623160855898804.html_关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告_20260623160855898804" rec_type="bn" rec_link="/20260623-n2-20260623160855898804.html" rec_title="关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告" rec_city="500106" rec_uniseq="20260623160855898804" onclick="itemListLooNoLogin(this)" bmpartnum="20260623160855898804">
+
+                                                关于重庆大学沙坪坝校区C校园第一教学楼水池及楼梯下区域维修整治采购公告
+
+                                <img src="/images2010/new_site/ty221214/fujian_20130806.jpg"/>
+                            </a>
+
+                        </li>
+                        <li style="padding-top: 0;overflow: inherit;height: 24px;">
+                            <b class="tybll_ond">招标公告</b>
+                            <b class="tybll_onb">关键词:交通安全设施 土工材料 其他 金属切削机床 教学设备 清淤机械 </b>
+                            <b class="tybll_onc">招标单位:重庆大学</b>
+                            <b style="float: right">重庆-沙坪坝 &nbsp; 2026-06-23</b>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <input type="checkbox" name="result-list-uniseq" value="20260623160813147492">
+                            <b class="setwidth" rec="bn_2026-06-23_20260623160813147492_湖北西陵城市发展集团有限公司宜昌北站广告服务采购(第2次采购)_/20260623-n2-20260623160813147492.html_420500" rec_type="bn" rec_jointime="2026-06-23" rec_uniseq="20260623160813147492" rec_title="湖北西陵城市发展集团有限公司宜昌北站广告服务采购(第2次采购)" rec_city="420500" rec_link="/20260623-n2-20260623160813147492.html" rec_fuj="" name="result-list-showcang-zb" title="收藏">
+                                <span id="actionContent20260623160813147492">
+                                    <em class="sc_icon_20160113">&nbsp;</em>
+                                </span>
+                            </b>
+
+
+        我们需要对bn里面的数据进行爬取，主要格式就填爬取标题字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：招标采购导航网招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+
+
+
+         推荐招标接口：
+curl 'http://www.365trade.com.cn/zbgg/index.jhtml?typeId=101' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Cookie: clientlanguage=zh_CN; acw_tc=0a24443017822024682247327e663b5fe569cd772f16640b576e1ed1ce327f' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Referer: http://www.365trade.com.cn/zbgg/index.jhtml' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+
+返回值格式：
+             <ul class="searchList">
+
+        <li>
+            <a href="/zgczb/836661.jhtml">
+                <p class="searchList_p fl">
+<em  class="gongcheng" >工程</em>
+
+                    <span class="span_hover" title="洛阳市公安局交通管理支队勤务五大队办公区一级网供热工程-单一来源采购邀请公告">洛阳市公安局交通管理支队勤务五大队办公区一级网供热工程-单一来源采购邀请公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zgczb/836661.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zgczb/836642.jhtml">
+                <p class="searchList_p fl">
+<em  class="gongcheng" >工程</em>
+
+                    <span class="span_hover" title="华阳建投阳泉热电有限责任公司#2机组汽轮机更换低压缸次末级叶片项目招标公告">华阳建投阳泉热电有限责任公司#2机组汽轮机更换低压缸次末级叶片项目招标公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zgczb/836642.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zgczb/836633.jhtml">
+                <p class="searchList_p fl">
+<em  class="gongcheng" >工程</em>
+
+                    <span class="span_hover" title="嵩县第三人民医院部分建筑楼房增加消防水及配套设施工程 竞争性谈判公告">嵩县第三人民医院部分建筑楼房增加消防水及配套设施工程 竞争性谈判公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zgczb/836633.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zgczb/836625.jhtml">
+                <p class="searchList_p fl">
+<em  class="gongcheng" >工程</em>
+
+                    <span class="span_hover" title="城子河区2026木耳大棚-竞争性磋商公告">城子河区2026木耳大棚-竞争性磋商公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zgczb/836625.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zgczb/836573.jhtml">
+                <p class="searchList_p fl">
+<em  class="gongcheng" >工程</em>
+
+                    <span class="span_hover" title="碾子山区公益骨灰堂服务中心零星工程项目-竞争性磋商公告">碾子山区公益骨灰堂服务中心零星工程项目-竞争性磋商公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zgczb/836573.jhtml">详情</a>
+            </a>
+        </li>
+
+        我们需要对bn里面的数据进行爬取，主要格式就填爬取标题字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：中招联合招标采购网
+        消息类型：工程招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+
+                推荐招标接口：
+curl 'http://www.365trade.com.cn/zbgg/index.jhtml?typeId=102' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Cookie: acw_tc=0a43eda617822042757423984e42182993a23d145b6ed9e0552c1463baae40; clientlanguage=zh_CN' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Referer: http://www.365trade.com.cn/zbgg/index.jhtml?typeId=101' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+
+返回值格式：
+             <ul class="searchList">
+
+        <li>
+            <a href="/zhwzb/836662.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="2026年A区热源厂2号燃煤采购项目-谈判采购公告">2026年A区热源厂2号燃煤采购项目-谈判采购公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836662.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836658.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="宝鸡钛业股份有限公司重型卧式车床购置-招标公告">宝鸡钛业股份有限公司重型卧式车床购置-招标公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836658.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836652.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="1设备采购履约谈判项目询比采购公告">1设备采购履约谈判项目询比采购公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836652.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836651.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="2026年北区热源厂1号燃煤采购项目-谈判采购公告">2026年北区热源厂1号燃煤采购项目-谈判采购公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836651.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836649.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="黑龙江大学ZC26011中文纸质图书-竞争性磋商公告">黑龙江大学ZC26011中文纸质图书-竞争性磋商公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836649.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836646.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="2026年中心热源厂2号燃煤采购项目-谈判采购公告">2026年中心热源厂2号燃煤采购项目-谈判采购公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836646.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zhwzb/836645.jhtml">
+                <p class="searchList_p fl">
+<em  class="huowu" >货物</em>
+
+                    <span class="span_hover" title="陕氢运力公司高纯提氢提纯项目-招标公告">陕氢运力公司高纯提氢提纯项目-招标公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zhwzb/836645.jhtml">详情</a>
+            </a>
+        </li>
+
+        我们需要对bn里面的数据进行爬取，主要格式就填爬取标题字段， 和发布时间字段，主要拿这两个字段就行，并给出是什么网站的推送
+        ，给企业微信推送
+        关键词:   网络安全
+        项目名称: xxx
+        网站：中招联合招标采购网招标
+        消息类型：货物招标
+        发布时间: 2026-06-22
+        推送时间: 2026-06-18 13:38:19
+
+        其中要求是：爬取过的招标公告不再进行爬取
+
+     （3）中招联合招标采购网中第三种招标为服务招标：
+     接口：curl 'http://www.365trade.com.cn/zbgg/index.jhtml?typeId=103' \
+-X 'GET' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Cookie: acw_tc=0a43eda617822042757423984e42182993a23d145b6ed9e0552c1463baae40; clientlanguage=zh_CN' \
+-H 'Accept-Language: zh-CN,zh-Hans;q=0.9' \
+-H 'Upgrade-Insecure-Requests: 1' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Safari/605.1.15' \
+-H 'Referer: http://www.365trade.com.cn/zbgg/index.jhtml?typeId=102' \
+-H 'Accept-Encoding: gzip, deflate' \
+-H 'Connection: keep-alive' \
+-H 'Priority: u=0, i'
+
+
+返回格式：<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="核能-储能耦合系统理论建模及调控特性分析-谈判采购公告">核能-储能耦合系统理论建模及调控特性分析-谈判采购公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836665.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zfwzb/836660.jhtml">
+                <p class="searchList_p fl">
+<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="中国银行河南省分行郑州地区票据资料传递外包项目（三次）-竞争性磋商公告">中国银行河南省分行郑州地区票据资料传递外包项目（三次）-竞争性磋商公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836660.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zfwzb/836639.jhtml">
+                <p class="searchList_p fl">
+<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="广州市南海中学初中部、高中部学生食堂运营服务项目-公开招标公告">广州市南海中学初中部、高中部学生食堂运营服务项目-公开招标公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836639.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zfwzb/836634.jhtml">
+                <p class="searchList_p fl">
+<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="山东省鲁中强制隔离戒毒所物业管理服务项目-竞争性磋商公告">山东省鲁中强制隔离戒毒所物业管理服务项目-竞争性磋商公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836634.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zfwzb/836616.jhtml">
+                <p class="searchList_p fl">
+<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="河南应用技术职业学院2026年双高任务四—化工—应用化工技术专业群调研及需求分析建设项目竞争性磋商公告">河南应用技术职业学院2026年双高任务四—化工—应用化工技术专业群调研及需求分析建...</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836616.jhtml">详情</a>
+            </a>
+        </li>
+        <li>
+            <a href="/zfwzb/836615.jhtml">
+                <p class="searchList_p fl">
+<em  class="fuwu" >服务</em>
+
+                    <span class="span_hover" title="河南财政金融学院公开遴选招标代理机构项目遴选公告">河南财政金融学院公开遴选招标代理机构项目遴选公告</span>
+                </p>
+                <i class="fl dis_block release_date ">发布日期：2026-06-23</i>
+                <a class="searchBtn fr" href="/zfwzb/836615.jhtml">详情</a>
+            </a>
+        </li>
+要求同前两种分类方式一样。
+
+
+
