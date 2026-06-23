@@ -1,0 +1,31 @@
+case_sensitive: false
+interval_minutes: 30
+keywords:
+- 信息安全
+- 网络安全
+- 数据安全
+- 加密
+- 防火墙
+- 流量计
+- 数据集
+- 数据标注
+- 数据治理
+seen_file: seen.json
+sources:
+- detail_url_template: '{detail_url}'
+  fetch_type: html
+  html_parser: ctg
+  id_field: id
+  list_path: list
+  match_fields:
+  - title
+  name: 中国三峡集团
+  playwright_url: https://eps.ctg.com.cn/cms/channel/1ywgg1/index.htm
+  site: 三峡集团招标
+  start_time_field: publishedTime
+  time_format: date
+  title_field: title
+  type_label: 招标公告
+  wait_selector: ul#list1
+timeout: 15
+wechat_webhook: ''
