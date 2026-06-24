@@ -59,7 +59,7 @@ sources:
     start_time_field: "releaseTime"
     time_format: "ms"
     deadline_field: ""
-    detail_url_template: ""
+    detail_url_template: "https://iscmdzzb.pipechina.com.cn:8081/web-portal/index.html?#/trade-info-detail?id={id}&noticeType=1&publishStatus=1&systemStatus"
 
   # ---------- 数据源 2: 万项网-推荐招标 ----------
   - name: "万项网-推荐招标"
@@ -74,6 +74,7 @@ sources:
     type_label: "推荐招标"
     start_time_field: "updateTime"
     time_format: "date"
+    detail_url_template: "https://www.chinazbcg.com/pagemore/{id}?type=info"
 
   # ---------- 数据源 3: 万项网-招标公告 ----------
   - name: "万项网-招标公告"
@@ -88,6 +89,7 @@ sources:
     type_label: "招标公告"
     start_time_field: "updateTime"
     time_format: "date"
+    detail_url_template: "https://www.chinazbcg.com/pagemore/{id}?type=info"
 
   # ---------- 数据源 4: 万项网-国际招标 ----------
   - name: "万项网-国际招标"
@@ -102,6 +104,7 @@ sources:
     type_label: "国际招标"
     start_time_field: "updateTime"
     time_format: "date"
+    detail_url_template: "https://www.chinazbcg.com/pagemore/{id}?type=info"
 
   # # ---------- 中石油招标投标网 - 招标公告 ----------
   # - name: "中石油-招标公告"
@@ -261,6 +264,7 @@ sources:
     site: "中国石油招标中心"
     api_url: "https://www2.cnpcbidding.com/project/index/centerNew"
     method: "GET"
+    ssl_verify: false
     headers:
       Accept: "application/json, text/plain, */*"
     list_path: "data"
@@ -272,3 +276,36 @@ sources:
     type_label: "招标公告"
     start_time_field: "createdTime"
     time_format: "date"
+    detail_url_template: "https://www2.cnpcbidding.com/#/wel/commodityDetails?goodsId={goodsId}&bidSaleEndDateTime={bidSaleEndDateTime}"
+
+  # ---------- 数据源 12: 中国政府采购网-中央公告 ----------
+  - name: "政府采购网-中央公告"
+    site: "中国政府采购网"
+    fetch_type: "requests_html"
+    html_parser: "ccgp"
+    playwright_url: "https://www.ccgp.gov.cn/cggg/zygg/"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "中央公告"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 13: 中国政府采购网-地方公告 ----------
+  - name: "政府采购网-地方公告"
+    site: "中国政府采购网"
+    fetch_type: "requests_html"
+    html_parser: "ccgp"
+    playwright_url: "https://www.ccgp.gov.cn/cggg/dfgg/"
+    list_path: "list"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "地方公告"
+    start_time_field: "publishedTime"
+    time_format: "date"
+    detail_url_template: "{detail_url}"

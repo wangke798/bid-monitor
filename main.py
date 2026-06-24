@@ -7,10 +7,12 @@ import hashlib
 import json
 import logging
 import os
+import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote, urljoin
 
 from typing import Optional, Dict, Set
 
@@ -398,6 +400,37 @@ def _parse_okcis(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
     return items
 
 
+def _parse_ccgp(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
+    """解析 中国政府采购网 www.ccgp.gov.cn 的中央/地方公告列表。"""
+    ul = soup.find("ul", class_="c_list_bid")
+    if not ul:
+        raise ValueError("未在页面中找到 ul.c_list_bid")
+    base_url = cfg.get("playwright_url", "https://www.ccgp.gov.cn/")
+    items = []
+    for li in ul.find_all("li"):
+        a_tag = li.find("a", href=True)
+        if not a_tag:
+            continue
+        title = a_tag.get("title", "").strip() or a_tag.get_text(strip=True)
+        link = urljoin(base_url, a_tag["href"])
+        # 发布时间在没有 rel 属性的 <em> 中，格式 "2026-06-24 13:52"
+        publish_time = ""
+        for em in li.find_all("em"):
+            if em.get("rel"):
+                continue
+            text = em.get_text(strip=True)
+            if len(text) >= 10 and text[4] == "-" and text[7] == "-":
+                publish_time = text[:10]
+                break
+        items.append({
+            "id": hashlib.md5(link.encode("utf-8")).hexdigest(),
+            "title": title,
+            "detail_url": link,
+            "publishedTime": publish_time,
+        })
+    return items
+
+
 def _parse_365trade(soup: "BeautifulSoup", cfg: dict) -> list[dict]:
     """解析 中招联合招标采购网 www.365trade.com.cn 的投标列表。"""
     ul = soup.find("ul", class_="searchList")
@@ -439,6 +472,7 @@ _HTML_PARSERS = {
     "tongyong": _parse_tongyong,
     "okcis": _parse_okcis,
     "365trade": _parse_365trade,
+    "ccgp": _parse_ccgp,
 }
 
 
@@ -493,6 +527,49 @@ def fetch_html(cfg: dict) -> dict:
         page.close()
 
 
+def fetch_requests_html(cfg: dict) -> dict:
+    """通过 requests 直接获取服务端渲染的 HTML 页面，适用于不需要 JS 的静态页面。"""
+    from bs4 import BeautifulSoup
+    url = cfg.get("playwright_url") or cfg["api_url"]
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh-Hans;q=0.9",
+        "Referer": cfg.get("referer", ""),
+    }
+    headers.update(build_headers(cfg))
+    resp = requests.get(url, headers=headers, timeout=cfg.get("timeout", 15))
+    resp.raise_for_status()
+    resp.encoding = resp.apparent_encoding or "utf-8"
+    parser_name = cfg.get("html_parser", "")
+    parser = _HTML_PARSERS.get(parser_name)
+    if parser is None:
+        raise ValueError(f"未知的 html_parser: {parser_name}，可选值: {list(_HTML_PARSERS.keys())}")
+    soup = BeautifulSoup(resp.text, "html.parser")
+    items = parser(soup, cfg)
+    log.info("HTML[%s] 解析完成，获取到 %d 条记录", parser_name, len(items))
+    return {"list": items}
+
+def _fetch_via_curl(cfg: dict) -> dict:
+    """通过 curl 子进程请求 JSON，用于 Python SSL 栈（LibreSSL）无法完成 TLS 握手的数据源。
+    在 GitHub Actions（OpenSSL）上不会走此路径，因为 ssl_verify: false 只在本地 config.yaml 设置。
+    """
+    url = cfg["api_url"]
+    params = cfg.get("params") or {}
+    if params:
+        qs = "&".join(f"{k}={v}" for k, v in params.items())
+        url = f"{url}?{qs}"
+    headers = build_headers(cfg)
+    args = ["curl", "-s", "-k", url]
+    for k, v in headers.items():
+        args += ["-H", f"{k}: {v}"]
+    timeout = cfg.get("timeout", 15)
+    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout + 5)
+    if result.returncode != 0:
+        raise RuntimeError(f"curl 请求失败: {result.stderr.strip()}")
+    return json.loads(result.stdout)
+
+
 def fetch(cfg: dict) -> dict:
     """请求接口,返回解析后的 JSON 字典。
     根据 fetch_type 自动选择 requests、Playwright 或 HTML 解析方式。
@@ -503,6 +580,12 @@ def fetch(cfg: dict) -> dict:
     # HTML 解析模式: 使用 Playwright 加载页面后直接解析 DOM
     if cfg.get("fetch_type") == "html":
         return fetch_html(cfg)
+    # requests 直接获取 HTML 模式: 适用于服务端渲染的静态页面
+    if cfg.get("fetch_type") == "requests_html":
+        return fetch_requests_html(cfg)
+    # curl 回退: macOS LibreSSL 2.8.3 与部分服务器 TLS 握手不兼容，GitHub Actions 上使用正常 requests 路径
+    if cfg.get("ssl_verify") is False:
+        return _fetch_via_curl(cfg)
     method = cfg.get("method", "GET").upper()
     headers = build_headers(cfg)
     kwargs = {
@@ -572,7 +655,12 @@ def build_link(item: dict, cfg: dict) -> str:
     if not template:
         return ""
     try:
-        return template.format(**item)
+        # URL-encode string values that are not themselves URLs (e.g. datetime fields with spaces)
+        encoded = {
+            k: quote(str(v), safe="") if isinstance(v, str) and not str(v).startswith("http") else v
+            for k, v in item.items()
+        }
+        return template.format(**encoded)
     except (KeyError, IndexError):
         return ""
 
