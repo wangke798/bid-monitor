@@ -6,7 +6,7 @@
 
 ```
 bid-monitor/
-├── main.py                          # 主程序（唯一源代码，769 行）
+├── main.py                          # 主程序（唯一源代码，约 860 行）
 ├── config.yaml                      # 主配置文件（数据源、关键词、webhook 等）
 ├── config_test.yaml                 # 测试用最小配置（仅含三峡集团一个数据源）
 ├── requirements.txt                 # Python 依赖
@@ -17,13 +17,14 @@ bid-monitor/
 ├── .github/workflows/monitor.yml    # GitHub Actions 定时工作流
 ├── data.txt                         # 国家管网 API 参考文档
 ├── explain.txt                      # 需求规格说明（万项网接口文档）
-├── addDataresource.txt              # 招标网页面格式参考文档
+├── addDataresource.txt              # 中国石油招标中心 / 招标网页面格式参考文档
+├── addDataSource2.txt               # 中国政府采购网页面格式参考文档
 └── Cwechat.txt                      # 企业微信 webhook URL（注意：包含敏感信息）
 ```
 
 ## 支持的数据源
 
-### 当前激活的数据源（10 个）
+### 当前激活的数据源（13 个）
 
 | # | 数据源名称 | fetch_type | 网站 | 抓取方式 |
 |---|-----------|------------|------|----------|
@@ -37,6 +38,9 @@ bid-monitor/
 | 8 | 中招联合-工程招标 | html | www.365trade.com.cn (typeId=101) | Playwright 加载页面 + BeautifulSoup 解析列表 |
 | 9 | 中招联合-货物招标 | html | www.365trade.com.cn (typeId=102) | Playwright 加载页面 + BeautifulSoup 解析列表 |
 | 10 | 中招联合-服务招标 | html | www.365trade.com.cn (typeId=103) | Playwright 加载页面 + BeautifulSoup 解析列表 |
+| 11 | 中国石油招标中心 | 默认（requests/curl） | www2.cnpcbidding.com | GET JSON API，macOS 下自动降级为 curl 请求 |
+| 12 | 政府采购网-中央公告 | requests_html | www.ccgp.gov.cn/cggg/zygg/ | requests 获取静态 HTML + BeautifulSoup 解析 |
+| 13 | 政府采购网-地方公告 | requests_html | www.ccgp.gov.cn/cggg/dfgg/ | requests 获取静态 HTML + BeautifulSoup 解析 |
 
 ### 已注释/暂不可用的数据源
 
@@ -53,6 +57,7 @@ bid-monitor/
 | 默认（不填） | `requests` 直接请求 JSON API | 普通免登录 JSON 接口 | `api_url` |
 | `playwright` | Playwright 浏览器捕获 XHR 响应 | JS 加密接口（如中石油） | `playwright_url`, `api_url` |
 | `html` | Playwright 加载页面 + BeautifulSoup 解析 DOM | 服务端渲染的 HTML 页面 | `playwright_url`, `html_parser` |
+| `requests_html` | requests 直接获取静态 HTML + BeautifulSoup 解析 | 不需要 JS 的静态 HTML 页面 | `playwright_url`, `html_parser` |
 
 ### fetch_type 详解
 
@@ -83,8 +88,16 @@ bid-monitor/
 | `tongyong` | `_parse_tongyong()` | 中国通用招标网 cgci.china-tender.com.cn |
 | `okcis` | `_parse_okcis()` | 招标采购导航网 www.okcis.cn |
 | `365trade` | `_parse_365trade()` | 中招联合招标采购网 www.365trade.com.cn |
+| `ccgp` | `_parse_ccgp()` | 中国政府采购网 www.ccgp.gov.cn |
 
-> Playwright 模式下，浏览器和页面在同类数据源间复用，减少资源开销。HTML 模式下每个数据源使用独立页面以保证数据新鲜。
+**4. requests_html 模式**
+- 使用 `requests` 库直接发起 GET 请求获取服务端渲染的 HTML 页面
+- 通过 `BeautifulSoup` 按预设解析器解析 DOM 元素
+- 相比 `html` 模式，无需启动 Playwright 浏览器，资源开销更小、速度更快
+- 页面内容由服务器直接返回，不依赖 JS 执行
+- 适用于：中国政府采购网等纯静态 HTML 页面
+
+> Playwright 模式下，浏览器和页面在同类数据源间复用，减少资源开销。HTML 模式下每个数据源使用独立页面以保证数据新鲜。requests_html 模式不依赖 Playwright，直接使用 requests 库获取页面。
 
 ## 配置说明
 
@@ -108,7 +121,7 @@ bid-monitor/
 |--------|------|------|
 | `name` | 是 | 数据源名称（用于日志标识和推送消息中的网站字段） |
 | `site` | 否 | 推送消息中展示的网站名称 |
-| `fetch_type` | 否 | 抓取方式：`"playwright"` / `"html"` / 不填（默认 requests） |
+| `fetch_type` | 否 | 抓取方式：`"playwright"` / `"html"` / `"requests_html"` / 不填（默认 requests） |
 | `api_url` | 视模式 | 目标 API 地址（默认和 playwright 模式必需） |
 | `method` | 否 | HTTP 方法：`"GET"` / `"POST"`，默认 `"GET"` |
 | `params` | 否 | GET 请求的 URL 参数（dict） |
@@ -124,7 +137,8 @@ bid-monitor/
 | `start_time_field` | 否 | 发布时间的字段名 |
 | `time_format` | 否 | 时间格式：`"ms"`（毫秒时间戳）或 `"date"`（日期字符串如 "2026-06-22"） |
 | `deadline_field` | 否 | 开标/截止时间字段名（毫秒时间戳），用于过滤已过期公告 |
-| `detail_url_template` | 否 | 详情链接模板，如 `"{detail_url}"` 或 `"https://example.com/{id}"` |
+| `detail_url_template` | 否 | 详情链接模板，如 `"{detail_url}"` 或 `"https://example.com/{id}"`。模板中的 `{字段名}` 会被自动 URL 编码（非 HTTP 字符串值） |
+| `ssl_verify` | 否 | 设为 `false` 时跳过 SSL 证书验证。macOS 下自动使用 curl 子进程替代 Python requests（LibreSSL 与部分服务器 TLS 不兼容） |
 
 **HTML 模式专属配置项：**
 
@@ -136,7 +150,7 @@ bid-monitor/
 
 ### 配置示例
 
-完整示例参见 `config.yaml`（含 10 个数据源的完整配置），最小测试示例参见 `config_test.yaml`（仅含三峡集团一个数据源）。
+完整示例参见 `config.yaml`（含 13 个数据源的完整配置），最小测试示例参见 `config_test.yaml`（仅含三峡集团一个数据源）。
 
 ## 环境变量
 
@@ -179,6 +193,9 @@ RUN_ONCE=1 python main.py
 - 推送内容包含：关键词、项目名称、网站、类型、发布时间、推送时间、原文链接
 - 去重记录保存在 `seen.json`，支持跨次运行累积去重
 - HTML 模式的数据源直接从页面解析链接，无需额外配置 `detail_url_template`
+- requests_html 模式使用轻量级 requests 获取静态 HTML 页面，无需 Playwright
+- `detail_url_template` 中的 `{字段名}` 自动 URL 编码，解决时间等字段含空格/特殊字符导致链接断裂的问题
+- macOS 下 SSL 不兼容时自动降级为 curl 请求（`ssl_verify: false`）
 - 支持本地定时运行和 GitHub Actions / cron 托管运行（`RUN_ONCE=1` 环境变量）
 - `wechat_webhook` 支持环境变量 `BID_WEBHOOK` 覆盖，避免明文入库
 - 已过期公告（开标时间早于当前时间）自动跳过，不推送
@@ -250,11 +267,12 @@ _HTML_PARSERS = {
 ## 技术栈
 
 - **Python 3.12**
-- **requests** — HTTP 请求（默认 fetch_type）
+- **requests** — HTTP 请求（默认 fetch_type 和 requests_html fetch_type）
 - **playwright** — 无头浏览器（playwright 和 html fetch_type）
-- **beautifulsoup4** — HTML 解析（html fetch_type）
+- **beautifulsoup4** — HTML 解析（html 和 requests_html fetch_type）
 - **PyYAML** — 配置文件解析
 - **schedule** — 本地定时调度
+- **curl** — SSL 回退方案（macOS LibreSSL 与部分服务器 TLS 握手不兼容时自动使用）
 
 ## GitHub Actions
 
@@ -288,6 +306,13 @@ playwright install chromium
 - 检查目标网站是否改版，页面结构可能已变化
 - 查看 `crawler.log` 中的 `HTML[parser_name] 解析完成，获取到 X 条记录` 日志
 - 确认 `wait_selector` 中指定的 CSS 选择器是否正确
+
+**Q: macOS 上报 SSL 错误（如 `SSLError` / `TLS 握手失败`）？**
+在数据源配置中设置 `ssl_verify: false`，程序会自动使用 curl 子进程替代 Python requests 发起请求。这是因为 macOS 自带的 LibreSSL 与部分服务器使用的 TLS 版本不兼容，而 GitHub Actions（使用 OpenSSL）不受此影响。
+
+**Q: requests_html 和 html 模式有什么区别？**
+- `html` 模式使用 Playwright 加载页面后再解析 DOM，适用于需要 JS 渲染的页面
+- `requests_html` 模式直接用 `requests` 库获取服务端返回的 HTML，适用于纯静态页面，无需 Playwright 浏览器，资源开销更小、速度更快
 
 **Q: 如何测试单个数据源？**
 使用 `config_test.yaml`，将其重命名为 `config.yaml`（备份原文件），或修改代码中 `CONFIG_PATH` 指向测试配置，然后 `RUN_ONCE=1 python main.py`。

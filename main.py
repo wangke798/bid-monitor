@@ -1,7 +1,10 @@
 """
 关键词接口监控爬虫
-- 定时请求免登录 JSON 接口
-- 遍历返回 list,命中自定义关键词的新记录推送到企业微信群机器人
+- 定时请求免登录 JSON 接口 / HTML 页面
+- 支持多种抓取方式: requests（JSON API）、playwright（JS 加密接口）、
+  html（Playwright + DOM 解析）、requests_html（requests + 静态 HTML 解析）
+- macOS SSL 不兼容时自动降级为 curl 请求
+- 遍历返回 list，命中自定义关键词的新记录推送到企业微信群机器人
 """
 import hashlib
 import json
@@ -489,6 +492,7 @@ def fetch_html(cfg: dict) -> dict:
       tongyong - 中国通用招标网 cgci.china-tender.com.cn
       okcis    - 招标采购导航网 www.okcis.cn
       365trade - 中招联合招标采购网 www.365trade.com.cn
+      ccgp     - 中国政府采购网 www.ccgp.gov.cn
     """
     from bs4 import BeautifulSoup
 
