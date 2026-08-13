@@ -309,3 +309,26 @@ sources:
     start_time_field: "publishedTime"
     time_format: "date"
     detail_url_template: "{detail_url}"
+
+  # ---------- 数据源 14: 中储粮服务-采购公告 ----------
+  - name: "中储粮服务-采购公告"
+    site: "中储粮服务平台"
+    api_url: "https://fwgs.sinograin.com.cn/serv/portal-service/api/index/purchase_announcement_page"
+    method: "POST"
+    body:
+      limit: 10
+      page: 1
+      purchaseMethod: "0"
+    use_today_release_range: false
+    headers:
+      Content-Type: "application/json;charset=UTF-8"
+      Referer: "https://fwgs.sinograin.com.cn/noticeProcurementList?name=%E9%87%87%E8%B4%AD%E5%85%AC%E5%91%8A"
+    list_path: "data.records"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "采购公告"
+    start_time_field: "beginTime"
+    time_format: "date"
+    detail_url_template: "https://fwgs.sinograin.com.cn/noticeProcurementList?name=%E9%87%87%E8%B4%AD%E5%85%AC%E5%91%8A"
