@@ -332,3 +332,69 @@ sources:
     start_time_field: "beginTime"
     time_format: "date"
     detail_url_template: "https://fwgs.sinograin.com.cn/noticeProcurementList?name=%E9%87%87%E8%B4%AD%E5%85%AC%E5%91%8A"
+
+  # ---------- 数据源 15: 中央政府采购网-招标公告 ----------
+  - name: "中央政府采购网-招标公告"
+    site: "中央政府采购网"
+    api_url: "https://www.zycg.gov.cn/freecms/rest/v1/notice/selectInfoMore.do"
+    method: "GET"
+    params:
+      siteId: "6f5243ee-d4d9-4b69-abbd-1e40576ccd7d"
+      channel: "d0e7c5f4-b93e-4478-b7fe-61110bb47fd5"
+      currPage: 1
+      pageSize: 12
+      noticeType: 1
+      implementWay: 1
+      operationStartTime: ""
+      title: ""
+      operationEndTime: ""
+    headers:
+      Accept: "*/*"
+      Accept-Language: "zh-CN,zh;q=0.9"
+      Content-Type: "application/json;charset=utf-8"
+      Referer: "https://www.zycg.gov.cn/freecms/site/zygjjgzfcgzx/ddwtxm/index.html"
+      User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      X-Requested-With: "XMLHttpRequest"
+    list_path: "data"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "招标公告"
+    start_time_field: "addtimeStr"
+    time_format: "date"
+    detail_url_template: "{pageurl}"
+    detail_url_base: "https://www.zycg.gov.cn/"
+
+  # ---------- 数据源 16: 中央政府采购网-电子卖场 ----------
+  - name: "中央政府采购网-电子卖场"
+    site: "中央政府采购网"
+    api_url: "https://www.zycg.gov.cn/freecms/rest/v1/notice/selectInfoMore.do"
+    method: "GET"
+    params:
+      siteId: "6f5243ee-d4d9-4b69-abbd-1e40576ccd7d"
+      channel: "d0e7c5f4-b93e-4478-b7fe-61110bb47fd5"
+      currPage: 1
+      pageSize: 12
+      noticeType: "59,2,61,3,31,32"
+      implementWay: 9
+      operationStartTime: ""
+      title: ""
+      operationEndTime: ""
+    headers:
+      Accept: "*/*"
+      Accept-Language: "zh-CN,zh;q=0.9"
+      Content-Type: "application/json;charset=utf-8"
+      Referer: "https://www.zycg.gov.cn/freecms/site/zygjjgzfcgzx/dzmc/index.html"
+      User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+      X-Requested-With: "XMLHttpRequest"
+    list_path: "data"
+    match_fields:
+      - "title"
+    id_field: "id"
+    title_field: "title"
+    type_label: "电子卖场公告"
+    start_time_field: "addtimeStr"
+    time_format: "date"
+    detail_url_template: "{pageurl}"
+    detail_url_base: "https://www.zycg.gov.cn/"

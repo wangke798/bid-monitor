@@ -10,6 +10,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 import time
@@ -658,13 +659,24 @@ def build_link(item: dict, cfg: dict) -> str:
     template = cfg.get("detail_url_template") or ""
     if not template:
         return ""
+
+    def encode_value(value):
+        if not isinstance(value, str):
+            return value
+        # 兼容复制为 Markdown 链接的 URL，只使用其中的实际地址。
+        markdown_link = re.fullmatch(r"\[[^\]]*\]\((https?://[^\s)]+)\)", value)
+        if markdown_link:
+            value = markdown_link.group(1)
+        if value.startswith(("http://", "https://")):
+            return value
+        return quote(value, safe="/" if value.startswith("/") else "")
+
     try:
-        # URL-encode string values that are not themselves URLs (e.g. datetime fields with spaces)
-        encoded = {
-            k: quote(str(v), safe="") if isinstance(v, str) and not str(v).startswith("http") else v
-            for k, v in item.items()
-        }
-        return template.format(**encoded)
+        # 编码非完整 URL 的字符串；根相对路径保留斜杠，供模板拼接网站域名。
+        encoded = {k: encode_value(v) for k, v in item.items()}
+        link = template.format(**encoded)
+        base_url = cfg.get("detail_url_base")
+        return urljoin(base_url, link) if base_url and link else link
     except (KeyError, IndexError):
         return ""
 

@@ -24,7 +24,7 @@ bid-monitor/
 
 ## 支持的数据源
 
-### 当前激活的数据源（13 个）
+### 当前激活的数据源（16 个）
 
 | # | 数据源名称 | fetch_type | 网站 | 抓取方式 |
 |---|-----------|------------|------|----------|
@@ -41,6 +41,9 @@ bid-monitor/
 | 11 | 中国石油招标中心 | 默认（requests/curl） | www2.cnpcbidding.com | GET JSON API，macOS 下自动降级为 curl 请求 |
 | 12 | 政府采购网-中央公告 | requests_html | www.ccgp.gov.cn/cggg/zygg/ | requests 获取静态 HTML + BeautifulSoup 解析 |
 | 13 | 政府采购网-地方公告 | requests_html | www.ccgp.gov.cn/cggg/dfgg/ | requests 获取静态 HTML + BeautifulSoup 解析 |
+| 14 | 中储粮服务-采购公告 | 默认（requests） | fwgs.sinograin.com.cn | POST JSON API |
+| 15 | 中央政府采购网-招标公告 | 默认（requests） | www.zycg.gov.cn | GET JSON API，匹配 title，按 id 去重 |
+| 16 | 中央政府采购网-电子卖场 | 默认（requests） | www.zycg.gov.cn | GET JSON API，noticeType=59,2,61,3,31,32，implementWay=9 |
 
 ### 已注释/暂不可用的数据源
 
@@ -137,7 +140,8 @@ bid-monitor/
 | `start_time_field` | 否 | 发布时间的字段名 |
 | `time_format` | 否 | 时间格式：`"ms"`（毫秒时间戳）或 `"date"`（日期字符串如 "2026-06-22"） |
 | `deadline_field` | 否 | 开标/截止时间字段名（毫秒时间戳），用于过滤已过期公告 |
-| `detail_url_template` | 否 | 详情链接模板，如 `"{detail_url}"` 或 `"https://example.com/{id}"`。模板中的 `{字段名}` 会被自动 URL 编码（非 HTTP 字符串值） |
+| `detail_url_template` | 否 | 详情链接模板，如 `"{detail_url}"` 或 `"https://example.com/{id}"`。非 HTTP 字符串值会自动 URL 编码，以 `/` 开头的根相对路径保留斜杠，可用 `"https://www.zycg.gov.cn{pageurl}"` 拼接详情链接 |
+| `detail_url_base` | 否 | 详情链接的基础地址，与模板结果通过 `urljoin` 合并；根相对路径补全域名，完整 HTTP/HTTPS URL 保持原地址。Markdown 链接值会提取其中的实际 URL |
 | `ssl_verify` | 否 | 设为 `false` 时跳过 SSL 证书验证。macOS 下自动使用 curl 子进程替代 Python requests（LibreSSL 与部分服务器 TLS 不兼容） |
 
 **HTML 模式专属配置项：**
@@ -150,7 +154,9 @@ bid-monitor/
 
 ### 配置示例
 
-完整示例参见 `config.yaml`（含 13 个数据源的完整配置），最小测试示例参见 `config_test.yaml`（仅含三峡集团一个数据源）。
+完整示例参见 `config.yaml`（含 16 个数据源的完整配置），最小测试示例参见 `config_test.yaml`（仅含三峡集团一个数据源）。
+
+中央政府采购网的招标公告与电子卖场分别配置为独立数据源，使用 `data` 列表中的 `title` 匹配全局关键词，以 `id` 去重、`addtimeStr` 展示发布时间。详情链接由 `pageurl` 与 `detail_url_base` 合并，兼容根相对路径和电子卖场的完整 URL。请求参数与各栏目保持一致，当前每轮各抓取第 1 页的 12 条公告；配置不保存浏览器的临时 `JSESSIONID`。
 
 ## 环境变量
 
